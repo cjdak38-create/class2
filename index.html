@@ -1,0 +1,2672 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026학년도 3학년 7반 학급 관리 허브</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Pretendard', 'Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        .tab-btn.active {
+            color: #4f46e5;
+            border-bottom: 3px solid #4f46e5;
+            background-color: #ffffff;
+            font-weight: 700;
+        }
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 9999px;
+        }
+        .picture-frame {
+            border: 8px solid #ffffff;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), inset 0 0 4px rgba(0,0,0,0.15);
+            border-radius: 1rem;
+            background-color: #f1f5f9;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-50">
+
+    <!-- [GATEWAY / LOGIN SCREEN] 학번·이름 로그인 화면 -->
+    <div id="login-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/75 backdrop-blur-md p-4 transition-opacity">
+        <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl border border-slate-100 relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-36 h-36 bg-indigo-100 rounded-full blur-2xl opacity-60 pointer-events-none"></div>
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-indigo-400 text-white font-black text-2xl shadow-md mb-3">
+                    307
+                </div>
+                <h2 class="text-2xl font-extrabold text-slate-800 tracking-tight">2026 3학년 7반 입장하기</h2>
+                <p class="text-xs text-slate-500 mt-1">총 29명 학생 및 담임선생님 전용 공간입니다.</p>
+            </div>
+
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4 text-sm">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">학번 (예: 30701, 30715 등)</label>
+                    <input type="text" id="login-student-id" required placeholder="예: 30701" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">이름</label>
+                    <input type="text" id="login-student-name" required placeholder="예: 강유진 또는 ARTYOM" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium">
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all text-sm flex items-center justify-center gap-1.5">
+                        <span>🚀 307 학생 교실 입장</span>
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-6 pt-4 border-t border-slate-100 space-y-2">
+                <div class="flex items-center justify-between">
+                    <p class="text-[11px] text-slate-400 font-medium">체험 계정 및 교사 접속</p>
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="quickLogin('30701', '강유진', 'student')" class="px-2 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-lg border border-indigo-200 text-center truncate">
+                        1번 강유진
+                    </button>
+                    <button onclick="quickLogin('30714', '조시연', 'student')" class="px-2 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-lg border border-indigo-200 text-center truncate">
+                        14번 조시연
+                    </button>
+                    <button onclick="openTeacherAuthModal()" class="px-2 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-lg text-center truncate flex items-center justify-center gap-1">
+                        <span>🔒</span> 담임교사
+                    </button>
+                </div>
+                <div class="pt-1">
+                    <select onchange="if(this.value){ const [num, name] = this.value.split('|'); quickLogin(num, name, 'student'); }" class="w-full p-2 text-xs border border-slate-200 rounded-xl bg-slate-50 text-slate-600 font-medium">
+                        <option value="">▼ 29명 전체 학생 명단에서 선택하여 바로 로그인...</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- [TEACHER AUTH MODAL] 담임교사 비밀번호 인증 모달 -->
+    <div id="teacher-auth-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs hidden p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
+            <div class="text-center mb-4">
+                <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center mx-auto mb-2 text-2xl font-black shadow-xs">
+                    👨‍🏫
+                </div>
+                <h3 class="text-base font-extrabold text-slate-800">담임선생님 로그인 인증</h3>
+                <p class="text-xs text-slate-500 mt-1">
+                    학급 공지 관리 및 수정 권한이 부여됩니다.<br>
+                    선생님 전용 비밀번호를 입력해 주세요.
+                </p>
+            </div>
+
+            <form onsubmit="handleTeacherPasswordSubmit(event)" class="space-y-4 text-xs">
+                <div>
+                    <input type="password" id="teacher-login-password" maxlength="10" placeholder="비밀번호 입력" autofocus required class="w-full text-center tracking-widest text-lg font-black p-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-slate-50">
+                    <p id="teacher-login-error" class="text-[11px] text-rose-600 font-bold mt-1.5 text-center hidden">
+                        비밀번호가 올바르지 않습니다.
+                    </p>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('teacher-auth-modal')" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors">
+                        취소
+                    </button>
+                    <button type="submit" class="w-1/2 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors shadow-xs">
+                        선생님 로그인
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 최상단 헤더 -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <span class="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-400 text-white font-black text-lg shadow-sm">
+                        307
+                    </span>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h1 class="text-lg sm:text-xl font-extrabold text-slate-800 tracking-tight">2026학년도 3학년 7반</h1>
+                            <span id="header-user-badge" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                입장 대기 중
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-500">재적인원 29명 · 봉사시간(8/19누계 실시간 수정) · 고교선호도 · 소통칸 · 진학자료 · 역할 · 캘린더</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span id="current-user-name" class="text-xs font-bold text-slate-700">로그인 필요</span>
+                        <button onclick="handleLogout()" class="text-[11px] text-slate-400 hover:text-rose-600 font-semibold ml-1 pl-1.5 border-l border-slate-300">
+                            변경
+                        </button>
+                    </div>
+                    
+                    <button id="header-add-notice-btn" onclick="openNoticeModal()" class="hidden items-center px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-xs transition-colors">
+                        + 공지 작성
+                    </button>
+                </div>
+            </div>
+
+            <!-- 네비게이션 탭 (봉사시간 탭을 첫 번째로 전면 배치) -->
+            <nav class="flex space-x-1 sm:space-x-2 border-t border-slate-100 overflow-x-auto custom-scroll -mb-px py-0.5" aria-label="Tabs">
+                <button onclick="switchTab('volunteer')" id="tab-btn-volunteer" class="tab-btn active py-3 px-3 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center gap-1.5 transition-all">
+                    <span>💖</span> 봉사시간 관리
+                    <span class="ml-1 px-1.5 py-0.5 text-[10px] rounded-full bg-indigo-100 text-indigo-700 font-bold" id="volunteer-badge">8/19 누계</span>
+                </button>
+                <button onclick="switchTab('highschool-survey')" id="tab-btn-highschool-survey" class="tab-btn py-3 px-3 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center gap-1.5 transition-all">
+                    <span>🏫</span> 고등학교 선호도 조사
+                    <span class="ml-1 px-1.5 py-0.5 text-[10px] rounded-full bg-rose-100 text-rose-700 font-bold">29명</span>
+                </button>
+                <button onclick="switchTab('notices')" id="tab-btn-notices" class="tab-btn py-3 px-3 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center gap-1.5 transition-all">
+                    <span>📢</span> 전체 공지
+                    <span id="notice-badge" class="ml-1 px-1.5 py-0.5 text-[10px] rounded-full bg-indigo-100 text-indigo-700 font-bold">3</span>
+                </button>
+                <button onclick="switchTab('frames')" id="tab-btn-frames" class="tab-btn py-3 px-3 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center gap-1.5 transition-all">
+                    <span>🖼️</span> 학급 안내 액자·배너
+                    <span id="frame-badge" class="ml-1 px-1.5 py-0.5 text-[10px] rounded-full bg-amber-100 text-amber-800 font-bold">2개</span>
+                </button>
+                <button onclick="switchTab('students')" id="tab-btn-students" class="tab-btn py-3 px-3 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center gap-1.5 transition-all">
+                    <span>🧑‍🎓</span> 학생 소통칸
+                    <span id="student-count-badge" class="ml-1 px-1.5 py-0.5 text-[10px] rounded-full bg-indigo-100 text-indigo-700 font-bold">29명</span>
+                </button>
+                <button onclick="switchTab('highschool-docs')" id="tab-btn-highschool-docs" class="tab-btn py-3 px-3 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center gap-1.5 transition-all">
+                    <span>🎓</span> 고등학교 자료실
+                    <span class="ml-1 px-1.5 py-0.5 text-[10px] rounded-full bg-indigo-100 text-indigo-700 font-bold" id="highschool-badge">4건</span>
+                </button>
+                <button onclick="switchTab('roles')" id="tab-btn-roles" class="tab-btn py-3 px-3 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center gap-1.5 transition-all">
+                    <span>🤝</span> 1인 1역할
+                    <span class="ml-1 px-1.5 py-0.5 text-[10px] rounded-full bg-slate-200 text-slate-700 font-bold" id="roles-badge">0개</span>
+                </button>
+                <button onclick="switchTab('traits')" id="tab-btn-traits" class="tab-btn py-3 px-3 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center gap-1.5 transition-all">
+                    <span>🏷️</span> 특징 누적부 (29명)
+                </button>
+                <button onclick="switchTab('calendar')" id="tab-btn-calendar" class="tab-btn py-3 px-3 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center gap-1.5 transition-all">
+                    <span>📅</span> 우리반 캘린더
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1">
+
+        <!-- [액자 배너 상단 표시 영역] -->
+        <div id="top-tab-frame-banner" class="mb-6 hidden"></div>
+
+        <!-- 1. [FOCUS] 봉사시간 관리 탭 (8/19 누계 입력 및 상시 인라인 수정) -->
+        <section id="tab-volunteer" class="tab-pane space-y-6">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-indigo-100 text-indigo-700 border border-indigo-200">
+                            8/19 기준 공식 누계
+                        </span>
+                        <h2 class="text-lg font-bold text-slate-800">💖 307 학생별 봉사시간 누적 관리부 (총 29명)</h2>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1">
+                        ※ 아래 표에서 각 학생의 시간을 <strong>직접 클릭하여 타이핑하거나 [+1h], [+2h] 버튼으로 언제든 수정</strong>할 수 있습니다. 변경 시 학급 통계에 즉시 반영됩니다.
+                    </p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+                    <button onclick="exportVolunteerCsv()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl border border-slate-200 transition-colors flex items-center gap-1.5 shadow-xs">
+                        <span>📥</span> 봉사시간 명단 다운로드 (CSV)
+                    </button>
+                </div>
+            </div>
+
+            <!-- 학급 봉사시간 종합 통계 카드 -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+                    <p class="text-xs text-slate-500 font-medium">우리반 총 누적 시간</p>
+                    <p id="stat-total-vol-hours" class="text-2xl font-black text-indigo-600 mt-1">0시간</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5">29명 합계</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+                    <p class="text-xs text-slate-500 font-medium">1인당 평균 봉사시간</p>
+                    <p id="stat-avg-vol-hours" class="text-2xl font-black text-emerald-600 mt-1">0시간</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5">전체 학생 평균</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+                    <p class="text-xs text-slate-500 font-medium">최다 봉사 학생</p>
+                    <p id="stat-top-vol-student" class="text-lg font-black text-slate-800 mt-1 truncate">조시연 (69h)</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5">학급 1위</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+                    <p class="text-xs text-slate-500 font-medium">다자녀 가구 학생</p>
+                    <p id="stat-multichild-count" class="text-2xl font-black text-rose-600 mt-1">8명</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5">공식 등록 확인</p>
+                </div>
+            </div>
+
+            <!-- 29명 봉사시간 테이블 -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                <div class="p-4 bg-slate-50/70 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-slate-700">학생별 봉사시간 현황부</span>
+                        <span class="text-[11px] bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full font-bold border border-indigo-200">29명 전체 인라인 수정 가능</span>
+                    </div>
+                    <div class="w-full sm:w-72">
+                        <input type="text" id="volunteer-search-input" onkeyup="renderVolunteerTab()" placeholder="학생 이름, 번호, 시간 검색..." class="w-full text-xs p-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-slate-200 text-left text-xs">
+                        <thead class="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider">
+                            <tr>
+                                <th scope="col" class="px-4 py-3 w-16 text-center">번호</th>
+                                <th scope="col" class="px-4 py-3 w-36">학번 / 이름</th>
+                                <th scope="col" class="px-4 py-3 w-28 text-center">다자녀 구분</th>
+                                <th scope="col" class="px-4 py-3 w-48">봉사시간(8/19 누계)</th>
+                                <th scope="col" class="px-4 py-3">빠른 시간 추가 / 조절</th>
+                                <th scope="col" class="px-4 py-3 w-48">진행 그래프</th>
+                            </tr>
+                        </thead>
+                        <tbody id="volunteer-table-body" class="divide-y divide-slate-100 bg-white">
+                            <!-- 29명 동적 렌더링 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. 고등학교 선호도 조사 탭 -->
+        <section id="tab-highschool-survey" class="tab-pane hidden space-y-6">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-rose-100 text-rose-700 border border-rose-200">
+                            2026 고입 1차 현황
+                        </span>
+                        <h2 class="text-lg font-bold text-slate-800">🏫 307 진학 희망 고등학교 선호도 조사 (전원 29명)</h2>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1">
+                        ※ 표에서 원하는 학생의 고등학교를 <strong>마우스로 클릭하여 즉시 직접 수정</strong>할 수 있습니다.
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+                    <button onclick="promptEditMyHighSchool()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all">
+                        <span>✏️</span> 내 희망 고등학교 변경하기
+                    </button>
+                    <button onclick="exportToCsv()" class="px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition-colors">
+                        📥 명단 다운로드
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                        <span>📊</span> 실시간 학교별 선호도 통계
+                    </h3>
+                    <span class="text-[11px] text-slate-400">총 29명 집계 완료</span>
+                </div>
+                <div id="survey-stats-container" class="flex flex-wrap gap-2"></div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                <div class="p-4 bg-slate-50/70 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-slate-700">학생별 희망 고교 목록 (29명)</span>
+                        <span class="text-[11px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full font-semibold">언제든 타이핑 또는 프리셋 클릭으로 수정</span>
+                    </div>
+                    <div class="w-full sm:w-64">
+                        <input type="text" id="survey-search-input" onkeyup="renderSurveyTable()" placeholder="학생 이름, 고등학교명 검색..." class="w-full text-xs p-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-slate-200 text-left text-xs">
+                        <thead class="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider">
+                            <tr>
+                                <th scope="col" class="px-4 py-3 w-16 text-center">번호</th>
+                                <th scope="col" class="px-4 py-3 w-40">학번 / 이름</th>
+                                <th scope="col" class="px-4 py-3 w-28 text-center">다자녀 구분</th>
+                                <th scope="col" class="px-4 py-3 w-56">현재 희망 고등학교 (클릭하여 수정)</th>
+                                <th scope="col" class="px-4 py-3">빠른 학교 선택 프리셋</th>
+                                <th scope="col" class="px-4 py-3 w-24 text-center">상태</th>
+                            </tr>
+                        </thead>
+                        <tbody id="survey-table-body" class="divide-y divide-slate-100 bg-white"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 전체 공지 탭 -->
+        <section id="tab-notices" class="tab-pane hidden space-y-5">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-lg font-bold text-slate-800">학급 전체 공지사항</h2>
+                        <span id="notice-role-badge" class="text-xs px-2.5 py-0.5 bg-slate-100 text-slate-600 rounded-full font-bold border border-slate-200">
+                            학생 열람 모드
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-0.5">307 총 29명 학생과 학부모에게 전달되는 필수 전달사항입니다. (공지 작성/수정/삭제는 담임선생님 전용 기능입니다.)</p>
+                </div>
+                <div id="notice-create-btn-wrapper" class="hidden">
+                    <button onclick="openNoticeModal()" class="w-full md:w-auto inline-flex items-center justify-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-xs transition-colors">
+                        + 새 공지 작성
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-2 justify-between items-start sm:items-center bg-white p-3 rounded-xl border border-slate-200">
+                <div class="flex flex-wrap gap-1.5 items-center">
+                    <span class="text-xs font-bold text-slate-400 mr-1.5">분류:</span>
+                    <button onclick="filterNotices('전체')" class="notice-filter-btn active px-3 py-1 text-xs rounded-lg font-bold bg-slate-800 text-white">전체 보기</button>
+                    <button onclick="filterNotices('중요')" class="notice-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">🚨 중요</button>
+                    <button onclick="filterNotices('가정통신')" class="notice-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">📄 가정통신</button>
+                    <button onclick="filterNotices('준비물')" class="notice-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">🎒 준비물</button>
+                    <button onclick="filterNotices('행사')" class="notice-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">🎉 행사</button>
+                </div>
+                <div class="w-full sm:w-64">
+                    <input type="text" id="notice-search-input" onkeyup="renderNotices()" placeholder="공지 제목 또는 내용 검색..." class="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                </div>
+            </div>
+
+            <div id="notice-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </section>
+
+        <!-- 4. 학급 안내 액자 / 배너 탭 -->
+        <section id="tab-frames" class="tab-pane hidden space-y-6">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl">🖼️</span>
+                        <h2 class="text-lg font-bold text-slate-800">학급 안내 액자 & 탭별 참고 배너 갤러리</h2>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        시간표, 교실 자리배치도, 1인 1역할 수행 가이드, 학사일정표 등 학생들이 <strong>각 탭에서 참고할 액자 형태의 포스터 사진</strong>을 등록하세요.
+                    </p>
+                </div>
+                <button onclick="openAddFrameModal()" class="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all">
+                    <span>🖼️</span> 새 안내 액자(사진/배너) 올리기
+                </button>
+            </div>
+
+            <div class="flex flex-wrap gap-1.5 items-center bg-white p-3 rounded-xl border border-slate-200">
+                <span class="text-xs font-bold text-slate-400 mr-2">액자 표시 탭:</span>
+                <button onclick="filterFrames('전체')" class="frame-filter-btn active px-3 py-1 text-xs rounded-lg font-bold bg-slate-800 text-white">전체 보기</button>
+                <button onclick="filterFrames('volunteer')" class="frame-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">💖 봉사시간 기준표</button>
+                <button onclick="filterFrames('roles')" class="frame-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">🤝 1인1역할 안내</button>
+                <button onclick="filterFrames('highschool-survey')" class="frame-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">🏫 고교선호도 안내</button>
+                <button onclick="filterFrames('calendar')" class="frame-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">📅 학사일정/시간표</button>
+                <button onclick="filterFrames('general')" class="frame-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">🌟 학급 일반 갤러리</button>
+            </div>
+
+            <div id="frames-gallery-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </section>
+
+        <!-- 5. 학생 카드 & 개인 소통칸 탭 -->
+        <section id="tab-students" class="tab-pane hidden space-y-6">
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row gap-3 items-center justify-between">
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <div class="relative w-full sm:w-80">
+                        <input type="text" id="student-search-input" onkeyup="filterStudents()" placeholder="이름, 번호, 학번(예: 30715, ARTYOM) 검색..." class="w-full pl-9 pr-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+                        <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    <span class="text-xs text-slate-500 hidden md:inline">총 29명 학생 등록됨 · 개인별 사진 및 메모 누적</span>
+                    <button onclick="openNewStudentModal()" class="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-xl transition-colors">
+                        + 신규 학생 등록
+                    </button>
+                </div>
+            </div>
+
+            <div id="students-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
+        </section>
+
+        <!-- 6. 고등학교 자료실 탭 -->
+        <section id="tab-highschool-docs" class="tab-pane hidden space-y-6">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800">🎓 2026 307 고등학교 진학 및 입시 자료실</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">전기고·후기고 입학 전형, 특목고·자사고·특성화고 홍보 리플릿, 입학 설명회 사진 및 요강 문서(PDF/HWP/이미지)를 보관합니다.</p>
+                </div>
+                <button onclick="openAddMaterialModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-colors shadow-xs flex items-center gap-1.5">
+                    <span>📤</span> 자료 올리기 (문서/사진)
+                </button>
+            </div>
+
+            <div class="flex flex-wrap gap-1.5 items-center bg-white p-3 rounded-xl border border-slate-200">
+                <span class="text-xs font-bold text-slate-400 mr-2">고교 구분:</span>
+                <button onclick="filterHighschool('전체')" class="hs-filter-btn active px-3 py-1.5 text-xs rounded-lg font-bold bg-indigo-600 text-white">전체 보기</button>
+                <button onclick="filterHighschool('일반고/자율고')" class="hs-filter-btn px-3 py-1.5 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">일반고/자율고</button>
+                <button onclick="filterHighschool('특목고(외고/과고/예체능)')" class="hs-filter-btn px-3 py-1.5 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">특목고</button>
+                <button onclick="filterHighschool('특성화고/마이스터고')" class="hs-filter-btn px-3 py-1.5 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">특성화·마이스터고</button>
+                <button onclick="filterHighschool('설명회/입학요강')" class="hs-filter-btn px-3 py-1.5 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">설명회/가이드</button>
+            </div>
+
+            <div id="highschool-materials-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+        </section>
+
+        <!-- 7. 1인 1역할 분담 탭 -->
+        <section id="tab-roles" class="tab-pane hidden space-y-6">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800">🤝 307 학급 1인 1역할 분담표</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">학급 공동체를 위해 학생들이 맡은 1인 1역할 현황입니다. 우측의 <strong>[+ 신규 역할 추가]</strong> 버튼으로 배정하세요.</p>
+                </div>
+                <button onclick="openAddRoleModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-colors shadow-xs flex items-center gap-1">
+                    <span>+</span> 신규 역할 추가
+                </button>
+            </div>
+
+            <div id="roles-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </section>
+
+        <!-- 8. 학생 특징 누적부 탭 -->
+        <section id="tab-traits" class="tab-pane hidden space-y-6">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800">학급 학생 특징 누적 매트릭스 (총 29명)</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">공식 다자녀 가구 학생 확인 및 관찰 메모를 직접 타이핑하거나 <strong>[+ 태그]</strong> 버튼으로 누적하세요.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-1.5 items-center">
+                        <span class="text-xs font-semibold text-slate-400 mr-1">태그 필터:</span>
+                        <button onclick="filterTraitsByTag('전체')" class="trait-filter-tag active px-2.5 py-1 text-xs rounded-lg font-medium bg-slate-800 text-white">전체 (29명)</button>
+                        <button onclick="filterTraitsByTag('다자녀')" class="trait-filter-tag px-2.5 py-1 text-xs rounded-lg font-medium bg-slate-100 text-slate-600 hover:bg-slate-200">#다자녀 (8명)</button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto rounded-xl border border-slate-200">
+                    <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
+                        <thead class="bg-slate-50 text-slate-600 font-semibold text-xs">
+                            <tr>
+                                <th scope="col" class="px-4 py-3 w-16 text-center">번호</th>
+                                <th scope="col" class="px-4 py-3 w-36">학번 / 이름</th>
+                                <th scope="col" class="px-4 py-3 w-28 text-center">다자녀</th>
+                                <th scope="col" class="px-4 py-3 w-28">희망 고교</th>
+                                <th scope="col" class="px-4 py-3 w-28 text-center">봉사시간</th>
+                                <th scope="col" class="px-4 py-3">분류 태그</th>
+                                <th scope="col" class="px-4 py-3">누적 관찰 특징 및 지도 메모</th>
+                                <th scope="col" class="px-4 py-3 w-24 text-center">태그 추가</th>
+                            </tr>
+                        </thead>
+                        <tbody id="traits-table-body" class="divide-y divide-slate-100 bg-white"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 9. 우리반 캘린더 & 상담 탭 -->
+        <section id="tab-calendar" class="tab-pane hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <h2 class="text-xl font-bold text-slate-800">2026년 3월</h2>
+                            <span class="text-xs px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-semibold border border-indigo-200">신학기 상담 주간</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="inline-block w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
+                            <span class="text-xs text-slate-600 mr-2">학부모 상담</span>
+                            <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                            <span class="text-xs text-slate-600 mr-2">학생 상담</span>
+                            <span class="inline-block w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                            <span class="text-xs text-slate-600">학급 행사</span>
+                        </div>
+                    </div>
+
+                    <div class="border border-slate-200 rounded-xl overflow-hidden">
+                        <div class="grid grid-cols-7 text-center bg-slate-50 font-semibold text-xs py-2 text-slate-600 border-b border-slate-200">
+                            <div class="text-rose-500">일</div>
+                            <div>월</div>
+                            <div>화</div>
+                            <div>수</div>
+                            <div>목</div>
+                            <div>금</div>
+                            <div class="text-indigo-600">토</div>
+                        </div>
+                        <div id="calendar-days-grid" class="grid grid-cols-7 text-xs bg-slate-100 gap-[1px]"></div>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+                        <h3 class="font-bold text-slate-800 text-sm mb-3">📅 상담 / 일정 예약 등록</h3>
+                        <form id="schedule-form" onsubmit="handleAddSchedule(event)" class="space-y-3 text-xs">
+                            <div>
+                                <label class="block font-medium text-slate-700 mb-1">대상 학생 (29명 중 선택)</label>
+                                <select id="sched-student" class="w-full p-2 border border-slate-200 rounded-lg bg-slate-50 focus:ring-1 focus:ring-indigo-500"></select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block font-medium text-slate-700 mb-1">구분</label>
+                                    <select id="sched-type" class="w-full p-2 border border-slate-200 rounded-lg bg-slate-50">
+                                        <option value="학부모상담">학부모 상담</option>
+                                        <option value="학생상담">학생 심층 면담</option>
+                                        <option value="전화상담">전화 상담</option>
+                                        <option value="학급행사">학급 일정</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block font-medium text-slate-700 mb-1">일자 (2026-03)</label>
+                                    <input type="date" id="sched-date" value="2026-03-10" min="2026-03-01" max="2026-03-31" class="w-full p-2 border border-slate-200 rounded-lg bg-slate-50">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block font-medium text-slate-700 mb-1">상세 안건</label>
+                                <input type="text" id="sched-memo" placeholder="예: 신학기 교우관계 및 고교 진로 희망 상담" class="w-full p-2 border border-slate-200 rounded-lg bg-slate-50">
+                            </div>
+                            <button type="submit" class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-xs transition-colors">
+                                상담 일정 추가
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+                        <h3 class="font-bold text-slate-800 text-sm mb-3">📌 확정된 상담 리스트</h3>
+                        <div id="upcoming-schedules" class="space-y-2.5 max-h-60 overflow-y-auto custom-scroll pr-1"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- [MODAL] 새 안내 액자(배너) 등록 모달 -->
+    <div id="add-frame-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs hidden p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-100">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">🖼️</span>
+                    <h3 class="text-base font-bold text-slate-800">새 안내 액자 / 배너 사진 올리기</h3>
+                </div>
+                <button onclick="closeModal('add-frame-modal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold">×</button>
+            </div>
+            <form onsubmit="handleCreateFrame(event)" class="mt-4 space-y-3.5 text-xs">
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">연동할 탭 선택 (해당 탭 상단 액자로도 노출)</label>
+                    <select id="new-frame-target-tab" class="w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-500">
+                        <option value="volunteer">💖 봉사시간 관리 탭 (예: 봉사활동 인정 기준 및 신청 안내)</option>
+                        <option value="roles">🤝 1인 1역할 분담 탭 (예: 역할 분담표, 당번 활동 요령)</option>
+                        <option value="highschool-survey">🏫 고등학교 선호도 조사 탭 (예: 관내 고교 분포 지도, 전형 일정표)</option>
+                        <option value="calendar">📅 우리반 캘린더 탭 (예: 1학기 주간 시간표, 학사일정표)</option>
+                        <option value="notices">📢 전체 공지 탭 (예: 학급 급훈 액자, 주요 전달문)</option>
+                        <option value="general">🌟 학급 일반 갤러리 (자유 사진 액자)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">액자 배너 제목</label>
+                    <input type="text" id="new-frame-title" required placeholder="예: 2026학년도 봉사활동 인정 기준 및 신청 방법 안내" class="w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-500 font-bold">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">안내 설명 및 학생 참고 메모</label>
+                    <textarea id="new-frame-desc" rows="2" placeholder="학생들이 사진을 보고 확인해야 할 핵심 사항을 적어주세요..." class="w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-500"></textarea>
+                </div>
+                
+                <div class="border-2 border-dashed border-amber-200 rounded-xl p-4 text-center bg-amber-50/50 hover:bg-amber-50 transition-colors">
+                    <input type="file" id="new-frame-file" accept="image/*" onchange="handleFrameFileSelect(event)" class="hidden">
+                    <button type="button" onclick="document.getElementById('new-frame-file').click()" class="px-4 py-2 bg-white border border-amber-300 rounded-lg text-xs font-bold text-amber-700 shadow-xs hover:bg-amber-50 flex items-center gap-1.5 mx-auto">
+                        <span>📷</span> 참고할 사진(배너/포스터) 파일 선택
+                    </button>
+                    <p id="frame-file-info" class="text-[11px] text-slate-400 mt-2">선택된 사진 파일이 없습니다</p>
+                    <div id="frame-preview-box" class="mt-3 hidden">
+                        <img id="frame-preview-img" src="" class="max-h-40 mx-auto rounded-lg shadow-sm border border-slate-200 object-cover">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('add-frame-modal')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg">취소</button>
+                    <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-lg">액자 걸기 (등록)</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- [MODAL] 새 공지사항 등록 모달 -->
+    <div id="notice-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs hidden p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-100">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                <h3 class="text-base font-bold text-slate-800">📢 새 학급 공지사항 등록</h3>
+                <button onclick="closeModal('notice-modal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold">×</button>
+            </div>
+            <form onsubmit="handleCreateNotice(event)" class="mt-4 space-y-3.5 text-xs">
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">공지 구분</label>
+                    <select id="new-notice-category" class="w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        <option value="중요">🚨 [필독] 중요 안내</option>
+                        <option value="준비물">🎒 준비물 / 과제</option>
+                        <option value="가정통신">📄 가정통신문 / 서식</option>
+                        <option value="행사">🎉 학급 행사 / 창체</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">제목</label>
+                    <input type="text" id="new-notice-title" required placeholder="예: 3월 첫 주 1인 1역할 활동 계획서 제출 안내" class="w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-indigo-500 font-bold">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">공지 내용</label>
+                    <textarea id="new-notice-content" required rows="4" placeholder="학생 및 학부모님께 공지할 내용을 작성하세요..." class="w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-indigo-500 leading-relaxed"></textarea>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('notice-modal')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg">취소</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg">공지 등록하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- [MODAL] 공지사항 수정 모달 -->
+    <div id="edit-notice-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs hidden p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-100">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <h3 class="text-base font-bold text-slate-800">✏️ 학급 공지사항 수정</h3>
+                    <span class="text-[11px] px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded font-bold">담임 전용</span>
+                </div>
+                <button onclick="closeModal('edit-notice-modal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold">×</button>
+            </div>
+            <form onsubmit="handleUpdateNotice(event)" class="mt-4 space-y-3.5 text-xs">
+                <input type="hidden" id="edit-notice-id">
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">공지 구분 변경</label>
+                    <select id="edit-notice-category" class="w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        <option value="중요">🚨 [필독] 중요 안내</option>
+                        <option value="준비물">🎒 준비물 / 과제</option>
+                        <option value="가정통신">📄 가정통신문 / 서식</option>
+                        <option value="행사">🎉 학급 행사 / 창체</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">공지 제목</label>
+                    <input type="text" id="edit-notice-title" required class="w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-slate-800 text-sm">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">공지 세부 내용</label>
+                    <textarea id="edit-notice-content" required rows="5" class="w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 leading-relaxed"></textarea>
+                </div>
+                <div class="flex justify-between items-center pt-2">
+                    <button type="button" onclick="deleteNoticeFromEditModal()" class="px-3.5 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold rounded-lg border border-rose-200 transition-colors flex items-center gap-1">
+                        <span>🗑️</span> 이 공지 삭제
+                    </button>
+                    <div class="flex gap-2">
+                        <button type="button" onclick="closeModal('edit-notice-modal')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg">취소</button>
+                        <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg">수정 완료</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- [MODAL] 희망 고등학교 직접 수정 모달 -->
+    <div id="edit-hs-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs hidden p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-slate-100">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                <h3 class="text-sm font-bold text-slate-800">🏫 희망 고등학교 변경</h3>
+                <button onclick="closeModal('edit-hs-modal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold">×</button>
+            </div>
+            <div class="mt-4 space-y-3 text-xs">
+                <p id="edit-hs-student-name" class="font-bold text-indigo-600">학생: 1번 강유진</p>
+                <input type="hidden" id="edit-hs-student-id">
+                
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">고등학교 명칭 입력</label>
+                    <input type="text" id="edit-hs-input" class="w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold text-sm">
+                </div>
+
+                <div>
+                    <label class="block text-[11px] text-slate-500 mb-1.5 font-medium">자주 선택하는 고등학교:</label>
+                    <div class="flex flex-wrap gap-1">
+                        <button type="button" onclick="setPresetHsModal('백석')" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded text-[11px] font-medium border border-slate-200">백석</button>
+                        <button type="button" onclick="setPresetHsModal('아라')" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded text-[11px] font-medium border border-slate-200">아라</button>
+                        <button type="button" onclick="setPresetHsModal('마전')" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded text-[11px] font-medium border border-slate-200">마전</button>
+                        <button type="button" onclick="setPresetHsModal('이음')" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded text-[11px] font-medium border border-slate-200">이음</button>
+                        <button type="button" onclick="setPresetHsModal('문곡')" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded text-[11px] font-medium border border-slate-200">문곡</button>
+                        <button type="button" onclick="setPresetHsModal('원당')" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded text-[11px] font-medium border border-slate-200">원당</button>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('edit-hs-modal')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg">취소</button>
+                    <button type="button" onclick="saveHighSchoolModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg">변경 저장</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- [MODAL] 고등학교 진학 자료 업로드 모달 -->
+    <div id="material-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs hidden p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-100">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                <h3 class="text-base font-bold text-slate-800">🎓 고등학교 진학 자료 / 파일 업로드</h3>
+                <button onclick="closeModal('material-modal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold">×</button>
+            </div>
+            <form onsubmit="handleCreateMaterial(event)" class="mt-4 space-y-3.5 text-xs">
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">고등학교 구분 / 카테고리</label>
+                    <select id="new-mat-category" class="w-full p-2 border border-slate-200 rounded-lg">
+                        <option value="일반고/자율고">🏫 일반고 / 자율형 공립·사립고</option>
+                        <option value="특목고(외고/과고/예체능)">🌟 특수목적고 (외고 / 과고 / 예술고 등)</option>
+                        <option value="특성화고/마이스터고">⚙️ 특성화고 / 마이스터고</option>
+                        <option value="설명회/입학요강">📑 입학설명회 일정 / 가이드북</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">자료 제목 (학교명 및 전형명)</label>
+                    <input type="text" id="new-mat-title" required placeholder="예: 2027학년도 OO외고 신입생 입학전형 요강" class="w-full p-2 border border-slate-200 rounded-lg">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">핵심 요약 및 안내 설명</label>
+                    <textarea id="new-mat-desc" rows="2" placeholder="전형 일정, 내신 반영 방법 등..." class="w-full p-2 border border-slate-200 rounded-lg"></textarea>
+                </div>
+                
+                <div class="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center bg-slate-50 hover:bg-slate-100/80 transition-colors">
+                    <input type="file" id="new-mat-file" onchange="handleMaterialFileSelect(event)" class="hidden">
+                    <button type="button" onclick="document.getElementById('new-mat-file').click()" class="px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-indigo-600 shadow-xs hover:bg-slate-50">
+                        📎 사진 또는 문서 파일 선택 (PDF, HWP, PNG, JPG 등)
+                    </button>
+                    <p id="mat-file-preview-info" class="text-[11px] text-slate-400 mt-2">선택된 파일이 없습니다</p>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('material-modal')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg">취소</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg">자료 등록 완료</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- [MODAL] 역할 추가 모달 -->
+    <div id="role-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs hidden p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-100">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                <h3 class="text-base font-bold text-slate-800">🤝 신규 1인 1역할 배정</h3>
+                <button onclick="closeModal('role-modal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold">×</button>
+            </div>
+            <form onsubmit="handleCreateRole(event)" class="mt-4 space-y-3.5 text-xs">
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">역할 명칭</label>
+                    <input type="text" id="new-role-title" required placeholder="예: 칠판 및 보드마카 관리관" class="w-full p-2 border border-slate-200 rounded-lg">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">담당 학생 (29명 중 선택)</label>
+                    <select id="new-role-student" class="w-full p-2 border border-slate-200 rounded-lg"></select>
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">수행 주기 및 임무</label>
+                    <textarea id="new-role-desc" required rows="2" placeholder="매 교시 종료 후 칠판 지우기 및 분필 가루 청소" class="w-full p-2 border border-slate-200 rounded-lg"></textarea>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('role-modal')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg">취소</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg">역할 등록</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- [MODAL] 학생 추가 모달 -->
+    <div id="student-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs hidden p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-100">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                <h3 class="text-base font-bold text-slate-800">🧑‍🎓 신규 학생 프로필 등록</h3>
+                <button onclick="closeModal('student-modal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold">×</button>
+            </div>
+            <form onsubmit="handleCreateStudent(event)" class="mt-4 space-y-3 text-xs">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">학번</label>
+                        <input type="text" id="new-student-num" required placeholder="예: 30730" class="w-full p-2 border border-slate-200 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">이름</label>
+                        <input type="text" id="new-student-name" required placeholder="학생 이름" class="w-full p-2 border border-slate-200 rounded-lg">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">희망 고등학교</label>
+                        <input type="text" id="new-student-target-school" placeholder="예: 백석" class="w-full p-2 border border-slate-200 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">초기 봉사시간</label>
+                        <input type="number" id="new-student-vol-hours" value="6" min="0" class="w-full p-2 border border-slate-200 rounded-lg">
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 pt-1">
+                    <input type="checkbox" id="new-student-is-multichild" class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500">
+                    <label for="new-student-is-multichild" class="font-bold text-slate-700">다자녀 가정 학생</label>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('student-modal')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg">취소</button>
+                    <button type="submit" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg">등록 완료</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- [MODAL] 태그 추가 모달 -->
+    <div id="add-tag-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs hidden p-4">
+        <div class="bg-white rounded-2xl max-w-xs w-full p-5 shadow-xl border border-slate-100">
+            <h3 class="text-sm font-bold text-slate-800 mb-2">🏷️ 학생 특징 태그 추가</h3>
+            <p id="target-student-label" class="text-xs text-indigo-600 font-medium mb-3">학생: 강유진</p>
+            <input type="hidden" id="tag-target-student-id">
+            <input type="text" id="new-tag-input" placeholder="태그 입력 (예: 반장, 방송부 등)" class="w-full p-2 text-xs border border-slate-200 rounded-lg mb-3">
+            <div class="flex justify-end gap-2">
+                <button onclick="closeModal('add-tag-modal')" class="px-3 py-1.5 bg-slate-100 text-slate-600 text-xs rounded-lg">취소</button>
+                <button onclick="confirmAddTag()" class="px-3 py-1.5 bg-indigo-600 text-white text-xs rounded-lg font-medium">추가</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 알림 토스트 -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <script>
+        // 담임교사 로그인 비밀번호
+        const TEACHER_LOGIN_PASSWORD = '2637';
+
+        // 8/19 기준 공식 봉사시간 및 다자녀(V) 체크가 100% 일치하도록 반영된 29명 데이터
+        const rawStudentRoster = [
+            { no: 1, name: "강유진", school: "백석", isMultiChild: true, volHours: 11 },
+            { no: 2, name: "강보빈", school: "이음", isMultiChild: false, volHours: 6 },
+            { no: 3, name: "권민하", school: "미추홀외고", isMultiChild: false, volHours: 23 },
+            { no: 4, name: "김다빈", school: "뷰티예술", isMultiChild: true, volHours: 25 },
+            { no: 5, name: "김채민", school: "백석", isMultiChild: false, volHours: 12 },
+            { no: 6, name: "노다영", school: "문곡", isMultiChild: false, volHours: 20 },
+            { no: 7, name: "박다솔", school: "백석", isMultiChild: false, volHours: 19 },
+            { no: 8, name: "박윤이", school: "아라", isMultiChild: false, volHours: 6 },
+            { no: 9, name: "박채원", school: "백석", isMultiChild: false, volHours: 11 },
+            { no: 10, name: "송시은", school: "아라", isMultiChild: false, volHours: 6 },
+            { no: 11, name: "엄서영", school: "아라", isMultiChild: true, volHours: 19 },
+            { no: 12, name: "유예리", school: "문곡고", isMultiChild: false, volHours: 23 },
+            { no: 13, name: "이다영", school: "영화국제관광", isMultiChild: false, volHours: 22 },
+            { no: 14, name: "조시연", school: "원당", isMultiChild: false, volHours: 69 },
+            { no: 15, name: "ARTYOM", school: "아라고", isMultiChild: false, volHours: 5 },
+            { no: 16, name: "김성현", school: "백석", isMultiChild: false, volHours: 6 },
+            { no: 17, name: "김태호", school: "아라고", isMultiChild: true, volHours: 6 },
+            { no: 18, name: "김한결", school: "백석", isMultiChild: true, volHours: 6 },
+            { no: 19, name: "김현빈", school: "마전", isMultiChild: false, volHours: 6 },
+            { no: 20, name: "김호연", school: "인과고", isMultiChild: true, volHours: 6 },
+            { no: 21, name: "문종현", school: "백석", isMultiChild: false, volHours: 6 },
+            { no: 22, name: "민승현", school: "아라", isMultiChild: false, volHours: 6 },
+            { no: 23, name: "신지환", school: "백석", isMultiChild: false, volHours: 6 },
+            { no: 24, name: "여호준", school: "백석", isMultiChild: false, volHours: 16 },
+            { no: 25, name: "이윤후", school: "백석", isMultiChild: true, volHours: 6 },
+            { no: 26, name: "정예담", school: "백석", isMultiChild: true, volHours: 5 },
+            { no: 27, name: "최민준", school: "백석", isMultiChild: false, volHours: 6 },
+            { no: 28, name: "황승욱", school: "마전", isMultiChild: false, volHours: 5 },
+            { no: 29, name: "남정우", school: "마전고등학교", isMultiChild: false, volHours: 6 }
+        ];
+
+        const fullStudents = rawStudentRoster.map((s) => {
+            const numStr = String(s.no).padStart(2, '0');
+            const studentId = `307${numStr}`;
+            return {
+                id: s.no,
+                studentId: studentId,
+                no: s.no,
+                name: s.name,
+                school: s.school,
+                isMultiChild: s.isMultiChild,
+                volHours: s.volHours,
+                avatar: `https://images.unsplash.com/photo-${1534528741775 + s.no * 73}?w=200&auto=format&fit=crop&q=80`,
+                tags: s.isMultiChild ? ['다자녀'] : [],
+                traitsDesc: '',
+                messages: []
+            };
+        });
+
+        // 전역 상태 데이터
+        const state = {
+            currentUser: {
+                studentId: '30701',
+                name: '강유진',
+                role: 'student'
+            },
+            isLoggedIn: false,
+            activeTab: 'volunteer', // 기본 오픈 탭을 봉사시간 탭으로 지정
+            noticeFilterCategory: '전체',
+            currentFrameFilter: '전체',
+            students: fullStudents,
+            frames: [
+                {
+                    id: 1,
+                    targetTab: 'volunteer',
+                    title: '💖 2026학년도 봉사활동 인정 기준 및 입력 안내',
+                    desc: '교내/교외 봉사활동 시간 인정 기준 및 1365/VMS 연계 방법 안내 포스터입니다.',
+                    imageUrl: 'https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=900&auto=format&fit=crop&q=80',
+                    uploader: '담임선생님',
+                    date: '2026-03-02'
+                },
+                {
+                    id: 2,
+                    targetTab: 'roles',
+                    title: '🤝 2026학년도 1학기 1인 1역할 활동 안내 포스터',
+                    desc: '우리 반을 함께 가꾸는 1인 1역할 규칙입니다. 맡은 구역을 매일 확인하고 실천해 주세요.',
+                    imageUrl: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=900&auto=format&fit=crop&q=80',
+                    uploader: '담임선생님',
+                    date: '2026-03-02'
+                }
+            ],
+            notices: [
+                {
+                    id: 1,
+                    category: '중요',
+                    title: '2026학년도 307 학급 규칙 및 29명 1인 1역할 안내',
+                    content: '3학년 7반 총 29명 학생 여러분 환영합니다! 우리 반은 "서로 존중하고 각자의 책임을 다하는 학급"을 지향합니다. 이번 주까지 [1인 1역할 분담] 탭을 확인하고 본인의 역할을 충실히 수행해 주세요.',
+                    date: '2026-03-02',
+                    author: '담임선생님',
+                    readCount: 29
+                },
+                {
+                    id: 2,
+                    category: '가정통신',
+                    title: '1학기 1차 고등학교 선호도 조사 및 8/19 봉사시간 누계 확인',
+                    content: '29명 학생들의 1차 진학 희망 고교와 8/19 기준 봉사활동 누적 시간이 등록되었습니다. 변경 사항이 있을 경우 언제든 수정해 주세요.',
+                    date: '2026-03-03',
+                    author: '담임선생님',
+                    readCount: 29
+                },
+                {
+                    id: 3,
+                    category: '행사',
+                    title: '3월 학급 자원봉사(환경정화 및 도서관 도우미) 신청',
+                    content: '교내 환경정화 봉사활동 및 학급 도서관 정리 봉사자가 필요합니다. 참여 희망 학생은 봉사시간 탭에서 신청해주세요.',
+                    date: '2026-03-03',
+                    author: '담임선생님',
+                    readCount: 24
+                }
+            ],
+            highSchoolMaterials: [
+                {
+                    id: 1,
+                    category: '특목고(외고/과고/예체능)',
+                    title: '2027학년도 인천국제고·미추홀외고 입학설명회 및 전형 요강',
+                    desc: '자기주도학습전형 안내, 영어 내신 성적 산출 방식 및 자소서 작성 가이드가 포함되어 있습니다.',
+                    date: '2026-03-03',
+                    uploader: '담임선생님',
+                    fileType: 'image',
+                    fileName: '2027_외고_입학설명회_포스터.jpg',
+                    fileUrl: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&auto=format&fit=crop&q=80',
+                    fileSize: '2.4 MB'
+                },
+                {
+                    id: 2,
+                    category: '일반고/자율고',
+                    title: '인근 백석고·아라고·마전고·이음고·문곡고 2026 교육과정 가이드북',
+                    desc: '2022 개정 교육과정에 맞춘 계열별 권장 이수 과목과 우리 지역 일반고 교육과정 편성표 PDF입니다.',
+                    date: '2026-03-02',
+                    uploader: '담임선생님',
+                    fileType: 'doc',
+                    fileName: '2026_지역일반고_선택가이드_배부용.pdf',
+                    fileUrl: '#',
+                    fileSize: '6.8 MB'
+                },
+                {
+                    id: 3,
+                    category: '특목고(외고/과고/예체능)',
+                    title: '2027학년도 인천과학고(인과고) 신입생 원서 접수 및 영재성 평가 요강',
+                    desc: '인천과학고 전형 세부 일정 및 수학·과학 역량 평가, 학교생활기록부 반영 기준 파일입니다.',
+                    date: '2026-03-01',
+                    uploader: '담임선생님',
+                    fileType: 'doc',
+                    fileName: '2027_인과고_신입생_모집요강.hwp',
+                    fileUrl: '#',
+                    fileSize: '3.5 MB'
+                },
+                {
+                    id: 4,
+                    category: '특성화고/마이스터고',
+                    title: '영화국제관광고 및 뷰티예술고 특별전형·학과 안내 리플릿',
+                    desc: '관광경영과, 항공서비스과, 뷰티디자인과 전형 요강 및 입학 상담 Q&A 자료입니다.',
+                    date: '2026-02-28',
+                    uploader: '담임선생님',
+                    fileType: 'image',
+                    fileName: '2027_특성화고_입학_리플릿.png',
+                    fileUrl: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?w=600&auto=format&fit=crop&q=80',
+                    fileSize: '4.2 MB'
+                }
+            ],
+            roles: [],
+            schedules: [
+                { id: 1, date: '2026-03-10', time: '15:30', student: '강유진 (30701)', type: '학부모상담', memo: '백석고 지망 및 고교 학점제 대비 과목 선택' },
+                { id: 2, date: '2026-03-11', time: '16:00', student: 'ARTYOM (30715)', type: '학생상담', memo: '아라고 진학 준비 및 한국어 교육 지원' },
+                { id: 3, date: '2026-03-16', time: '14:00', student: '학급 전체 (29명)', type: '학급행사', memo: '2026 고교 선호도 1차 취합 마감 및 확인' }
+            ]
+        };
+
+        // ==========================================
+        // 로그인 및 선생님 비밀번호(2637) 인증 로직
+        // ==========================================
+        function handleLogin(e) {
+            e.preventDefault();
+            const studentId = document.getElementById('login-student-id').value.trim();
+            const name = document.getElementById('login-student-name').value.trim();
+
+            if (!studentId || !name) return;
+
+            if (name.includes('선생') || studentId.toLowerCase().startsWith('t')) {
+                openTeacherAuthModal();
+                return;
+            }
+
+            const matched = state.students.find(s => s.studentId === studentId || s.name.toLowerCase() === name.toLowerCase());
+
+            state.currentUser = {
+                studentId: matched ? matched.studentId : studentId,
+                name: matched ? matched.name : name,
+                role: 'student'
+            };
+            completeLogin();
+        }
+
+        function quickLogin(studentId, name, role) {
+            state.currentUser = { studentId, name, role };
+            completeLogin();
+        }
+
+        function openTeacherAuthModal() {
+            const pwdInput = document.getElementById('teacher-login-password');
+            const errText = document.getElementById('teacher-login-error');
+            if (pwdInput) pwdInput.value = '';
+            if (errText) errText.classList.add('hidden');
+            openModal('teacher-auth-modal');
+            setTimeout(() => pwdInput?.focus(), 150);
+        }
+
+        function handleTeacherPasswordSubmit(e) {
+            e.preventDefault();
+            const entered = document.getElementById('teacher-login-password').value.trim();
+            const errText = document.getElementById('teacher-login-error');
+
+            if (entered === TEACHER_LOGIN_PASSWORD) {
+                closeModal('teacher-auth-modal');
+                state.currentUser = {
+                    studentId: 'T001',
+                    name: '담임선생님',
+                    role: 'teacher'
+                };
+                completeLogin();
+            } else {
+                errText.classList.remove('hidden');
+                document.getElementById('teacher-login-password').value = '';
+                document.getElementById('teacher-login-password').focus();
+            }
+        }
+
+        function completeLogin() {
+            state.isLoggedIn = true;
+            document.getElementById('login-overlay').classList.add('hidden');
+            
+            const badge = document.getElementById('header-user-badge');
+            const nameLabel = document.getElementById('current-user-name');
+            const headerAddNoticeBtn = document.getElementById('header-add-notice-btn');
+            const noticeRoleBadge = document.getElementById('notice-role-badge');
+            const noticeCreateBtnWrapper = document.getElementById('notice-create-btn-wrapper');
+            
+            if (state.currentUser.role === 'teacher') {
+                badge.innerText = '담임교사 모드 (수정/삭제 권한)';
+                badge.className = 'inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200';
+                nameLabel.innerText = `👨‍🏫 ${state.currentUser.name}`;
+
+                if (headerAddNoticeBtn) {
+                    headerAddNoticeBtn.classList.remove('hidden');
+                    headerAddNoticeBtn.classList.add('inline-flex');
+                }
+                if (noticeCreateBtnWrapper) noticeCreateBtnWrapper.classList.remove('hidden');
+                if (noticeRoleBadge) {
+                    noticeRoleBadge.innerText = '담임교사 관리 모드 (작성/수정/삭제 가능)';
+                    noticeRoleBadge.className = 'text-xs px-2.5 py-0.5 bg-rose-50 text-rose-700 rounded-full font-bold border border-rose-200';
+                }
+            } else {
+                badge.innerText = `307학급 학생`;
+                badge.className = 'inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200';
+                nameLabel.innerText = `🧑‍🎓 ${state.currentUser.studentId} ${state.currentUser.name}`;
+
+                if (headerAddNoticeBtn) {
+                    headerAddNoticeBtn.classList.add('hidden');
+                    headerAddNoticeBtn.classList.remove('inline-flex');
+                }
+                if (noticeCreateBtnWrapper) noticeCreateBtnWrapper.classList.add('hidden');
+                if (noticeRoleBadge) {
+                    noticeRoleBadge.innerText = '학생 열람 모드';
+                    noticeRoleBadge.className = 'text-xs px-2.5 py-0.5 bg-slate-100 text-slate-600 rounded-full font-bold border border-slate-200';
+                }
+            }
+
+            renderAll();
+            showToast(`${state.currentUser.name}님 환영합니다! 307학급 공간에 입장했습니다.`, 'success');
+        }
+
+        function handleLogout() {
+            state.isLoggedIn = false;
+            document.getElementById('login-overlay').classList.remove('hidden');
+        }
+
+        function switchTab(tabId) {
+            state.activeTab = tabId;
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+            const targetPane = document.getElementById(`tab-${tabId}`);
+            const targetBtn = document.getElementById(`tab-btn-${tabId}`);
+            if (targetPane) targetPane.classList.remove('hidden');
+            if (targetBtn) targetBtn.classList.add('active');
+
+            renderTopTabFrameBanner(tabId);
+
+            if (tabId === 'volunteer') renderVolunteerTab();
+            if (tabId === 'notices') renderNotices();
+            if (tabId === 'frames') renderFramesGallery();
+            if (tabId === 'calendar') renderCalendar();
+            if (tabId === 'roles') renderRoles();
+            if (tabId === 'highschool-docs') renderHighschoolMaterials();
+            if (tabId === 'highschool-survey') renderHighSchoolSurvey();
+            if (tabId === 'traits') renderTraitsTable();
+            if (tabId === 'students') renderStudents();
+        }
+
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `p-3 px-4 rounded-xl shadow-lg text-xs font-semibold text-white transition-all transform duration-300 pointer-events-auto flex items-center gap-2 ${
+                type === 'success' ? 'bg-emerald-600' : type === 'error' ? 'bg-rose-600' : 'bg-slate-800'
+            }`;
+            toast.innerHTML = `<span>✔</span> <span>${msg}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+
+        function openModal(id) {
+            document.getElementById(id)?.classList.remove('hidden');
+        }
+        function closeModal(id) {
+            document.getElementById(id)?.classList.add('hidden');
+        }
+
+        // ==========================================
+        // 1. 봉사시간 탭 렌더링 & 실시간 인라인 수정 로직
+        // ==========================================
+        function renderVolunteerTab() {
+            renderVolunteerStats();
+            renderVolunteerTable();
+        }
+
+        function renderVolunteerStats() {
+            let totalHours = 0;
+            let maxHours = -1;
+            let topStudentName = '-';
+            let multiChildCount = 0;
+
+            state.students.forEach(s => {
+                const h = Number(s.volHours) || 0;
+                totalHours += h;
+                if (h > maxHours) {
+                    maxHours = h;
+                    topStudentName = `${s.name} (${h}h)`;
+                }
+                if (s.isMultiChild) multiChildCount++;
+            });
+
+            const avgHours = state.students.length > 0 ? (totalHours / state.students.length).toFixed(1) : 0;
+
+            document.getElementById('stat-total-vol-hours').innerText = `${totalHours}시간`;
+            document.getElementById('stat-avg-vol-hours').innerText = `${avgHours}시간`;
+            document.getElementById('stat-top-vol-student').innerText = topStudentName;
+            document.getElementById('stat-multichild-count').innerText = `${multiChildCount}명`;
+        }
+
+        function renderVolunteerTable() {
+            const tbody = document.getElementById('volunteer-table-body');
+            tbody.innerHTML = '';
+
+            const search = (document.getElementById('volunteer-search-input')?.value || '').toLowerCase();
+
+            const filtered = state.students.filter(s => {
+                return s.name.toLowerCase().includes(search) ||
+                       s.studentId.includes(search) ||
+                       String(s.no) === search ||
+                       String(s.volHours).includes(search);
+            });
+
+            filtered.forEach(s => {
+                const isCurrent = state.currentUser.studentId === s.studentId || state.currentUser.name === s.name;
+                const tr = document.createElement('tr');
+                tr.className = `hover:bg-slate-50/80 transition-colors ${isCurrent ? 'bg-indigo-50/40 font-medium' : ''}`;
+
+                const currentHours = Number(s.volHours) || 0;
+                // 목표 20시간 기준 퍼센트 (최대 100% 시각화)
+                const percent = Math.min(100, Math.round((currentHours / 20) * 100));
+
+                tr.innerHTML = `
+                    <td class="px-4 py-3.5 text-center font-extrabold text-slate-500">${s.no}</td>
+                    <td class="px-4 py-3.5">
+                        <div class="flex items-center gap-2">
+                            <span class="font-mono text-xs text-indigo-600 font-bold">${s.studentId}</span>
+                            <span class="font-bold text-slate-800">${s.name}</span>
+                            ${isCurrent ? '<span class="text-[9px] bg-indigo-600 text-white px-1.5 py-0.5 rounded font-bold">본인</span>' : ''}
+                        </div>
+                    </td>
+                    <td class="px-4 py-3.5 text-center">
+                        <button onclick="toggleMultiChild(${s.id})" title="클릭하여 다자녀 여부 변경" class="inline-flex items-center justify-center">
+                            ${s.isMultiChild 
+                                ? '<span class="px-2 py-0.5 rounded-full text-[11px] font-black bg-rose-100 text-rose-700 border border-rose-200">다자녀 (V)</span>' 
+                                : '<span class="px-2 py-0.5 rounded-full text-[11px] text-slate-400 border border-slate-200 hover:bg-slate-100">미해당</span>'}
+                        </button>
+                    </td>
+                    <td class="px-4 py-3.5">
+                        <div class="flex items-center gap-1.5">
+                            <input type="number" value="${currentHours}" min="0" max="999"
+                                onblur="updateStudentVolHours(${s.id}, this.value)"
+                                onkeydown="if(event.key==='Enter') this.blur();"
+                                title="클릭하여 직접 숫자를 입력하세요"
+                                class="w-20 text-center text-sm font-black text-indigo-600 bg-white border border-slate-200 rounded-lg py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 hover:border-slate-300">
+                            <span class="text-xs font-bold text-slate-500">시간</span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3.5">
+                        <div class="flex items-center gap-1">
+                            <button onclick="adjustVolHours(${s.id}, 1)" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 rounded-md font-bold text-[11px] border border-slate-200 transition-colors">+1h</button>
+                            <button onclick="adjustVolHours(${s.id}, 2)" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 rounded-md font-bold text-[11px] border border-slate-200 transition-colors">+2h</button>
+                            <button onclick="adjustVolHours(${s.id}, 5)" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 rounded-md font-bold text-[11px] border border-slate-200 transition-colors">+5h</button>
+                            <button onclick="adjustVolHours(${s.id}, -1)" class="px-2 py-1 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-700 rounded-md font-bold text-[11px] border border-slate-200 transition-colors">-1h</button>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3.5">
+                        <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden border border-slate-200">
+                            <div class="bg-indigo-600 h-2.5 rounded-full transition-all duration-300" style="width: ${percent}%"></div>
+                        </div>
+                        <span class="text-[10px] text-slate-400 font-medium block mt-0.5">${currentHours}시간 누적</span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 인라인 직접 타이핑 수정
+        function updateStudentVolHours(studentId, newHours) {
+            const student = state.students.find(s => s.id === studentId);
+            if (student) {
+                const num = Math.max(0, parseInt(newHours) || 0);
+                if (student.volHours !== num) {
+                    student.volHours = num;
+                    renderVolunteerStats();
+                    renderVolunteerTable();
+                    renderTraitsTable();
+                    showToast(`${student.no}번 ${student.name} 학생의 봉사시간이 ${num}시간으로 수정되었습니다.`, 'success');
+                }
+            }
+        }
+
+        // 증감 버튼
+        function adjustVolHours(studentId, delta) {
+            const student = state.students.find(s => s.id === studentId);
+            if (student) {
+                const current = Number(student.volHours) || 0;
+                const nextVal = Math.max(0, current + delta);
+                student.volHours = nextVal;
+                renderVolunteerStats();
+                renderVolunteerTable();
+                renderTraitsTable();
+                showToast(`${student.no}번 ${student.name} 학생: ${nextVal}시간 (${delta > 0 ? '+' : ''}${delta}h 반영)`, 'success');
+            }
+        }
+
+        // 다자녀 토글
+        function toggleMultiChild(studentId) {
+            const student = state.students.find(s => s.id === studentId);
+            if (student) {
+                student.isMultiChild = !student.isMultiChild;
+                if (student.isMultiChild) {
+                    if (!student.tags.includes('다자녀')) student.tags.push('다자녀');
+                } else {
+                    student.tags = student.tags.filter(t => t !== '다자녀');
+                }
+                renderVolunteerStats();
+                renderVolunteerTable();
+                renderTraitsTable();
+                showToast(`${student.name} 학생의 다자녀 구분이 ${student.isMultiChild ? '등록' : '해제'}되었습니다.`, 'info');
+            }
+        }
+
+        // 봉사시간 CSV 내보내기
+        function exportVolunteerCsv() {
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF번호,학번,이름,다자녀여부,봉사시간(8/19누계),희망고교\n";
+            state.students.forEach(s => {
+                csvContent += `${s.no},${s.studentId},${s.name},${s.isMultiChild ? '다자녀(V)' : '미해당'},${s.volHours},${s.school || '미정'}\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "2026_307_봉사시간_8월19일_누계명단.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("봉사시간 누계 명단 CSV 파일이 다운로드되었습니다.", "success");
+        }
+
+        // ==========================================
+        // 2. 고등학교 선호도 조사 로직
+        // ==========================================
+        function renderHighSchoolSurvey() {
+            renderSurveyStats();
+            renderSurveyTable();
+        }
+
+        function renderSurveyStats() {
+            const container = document.getElementById('survey-stats-container');
+            container.innerHTML = '';
+
+            const counts = {};
+            state.students.forEach(s => {
+                let school = (s.school || '미정').trim();
+                if (school === '문곡고') school = '문곡';
+                if (school === '아라고') school = '아라';
+                if (school === '마전고등학교') school = '마전';
+
+                counts[school] = (counts[school] || 0) + 1;
+            });
+
+            const sortedSchools = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+
+            sortedSchools.forEach(([school, count]) => {
+                const badge = document.createElement('div');
+                badge.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-xl border bg-slate-50 border-slate-200 text-xs font-bold";
+                
+                let colorClass = 'text-indigo-600';
+                if (school.includes('백석')) colorClass = 'text-blue-600';
+                else if (school.includes('아라')) colorClass = 'text-emerald-600';
+                else if (school.includes('마전')) colorClass = 'text-purple-600';
+                else if (school.includes('외고') || school.includes('인과고')) colorClass = 'text-rose-600';
+
+                badge.innerHTML = `
+                    <span class="text-slate-700">${school}</span>
+                    <span class="px-1.5 py-0.5 rounded-md text-[11px] bg-white border border-slate-200 ${colorClass}">${count}명</span>
+                `;
+                container.appendChild(badge);
+            });
+        }
+
+        function renderSurveyTable() {
+            const tbody = document.getElementById('survey-table-body');
+            tbody.innerHTML = '';
+
+            const search = (document.getElementById('survey-search-input')?.value || '').toLowerCase();
+
+            const filtered = state.students.filter(s => {
+                return s.name.toLowerCase().includes(search) ||
+                       s.studentId.includes(search) ||
+                       String(s.no) === search ||
+                       (s.school && s.school.toLowerCase().includes(search));
+            });
+
+            filtered.forEach(s => {
+                const isCurrent = state.currentUser.studentId === s.studentId || state.currentUser.name === s.name;
+                const tr = document.createElement('tr');
+                tr.className = `hover:bg-slate-50/80 transition-colors ${isCurrent ? 'bg-indigo-50/40 font-medium' : ''}`;
+
+                tr.innerHTML = `
+                    <td class="px-4 py-3 text-center font-extrabold text-slate-500">${s.no}</td>
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-2">
+                            <span class="font-mono text-xs text-indigo-600 font-bold">${s.studentId}</span>
+                            <span class="font-bold text-slate-800">${s.name}</span>
+                            ${isCurrent ? '<span class="text-[9px] bg-indigo-600 text-white px-1.5 py-0.5 rounded font-bold">본인</span>' : ''}
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 text-center">
+                        ${s.isMultiChild ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-100 text-rose-700 border border-rose-200">다자녀 (V)</span>' : '<span class="text-[11px] text-slate-400">-</span>'}
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-2">
+                            <input type="text" value="${s.school || ''}" 
+                                onblur="updateStudentHighSchool(${s.id}, this.value)" 
+                                onkeydown="if(event.key==='Enter') this.blur();"
+                                placeholder="고등학교 입력..."
+                                title="클릭하여 바로 수정하세요"
+                                class="w-full text-xs font-bold text-slate-800 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all hover:border-slate-300">
+                            <button onclick="openEditHsModal(${s.id})" title="상세 모달로 수정" class="p-1.5 text-slate-400 hover:text-indigo-600 rounded hover:bg-slate-100">
+                                ✏️
+                            </button>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="flex flex-wrap gap-1">
+                            <button onclick="quickSetSchool(${s.id}, '백석')" class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200">백석</button>
+                            <button onclick="quickSetSchool(${s.id}, '아라')" class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200">아라</button>
+                            <button onclick="quickSetSchool(${s.id}, '마전')" class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200">마전</button>
+                            <button onclick="quickSetSchool(${s.id}, '이음')" class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200">이음</button>
+                            <button onclick="quickSetSchool(${s.id}, '문곡')" class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200">문곡</button>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 text-center">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800">
+                            완료
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateStudentHighSchool(studentId, newSchool) {
+            const student = state.students.find(s => s.id === studentId);
+            if (student) {
+                const cleaned = newSchool.trim();
+                if (student.school !== cleaned) {
+                    student.school = cleaned;
+                    renderSurveyStats();
+                    renderTraitsTable();
+                    renderStudents();
+                    showToast(`${student.no}번 ${student.name} 학생: '${cleaned}' 저장 완료`, 'success');
+                }
+            }
+        }
+
+        function quickSetSchool(studentId, schoolName) {
+            const student = state.students.find(s => s.id === studentId);
+            if (student) {
+                student.school = schoolName;
+                renderHighSchoolSurvey();
+                renderTraitsTable();
+                renderStudents();
+                showToast(`${student.no}번 ${student.name} 학생: '${schoolName}' 선택 완료`, 'success');
+            }
+        }
+
+        function promptEditMyHighSchool() {
+            const currentStudent = state.students.find(s => s.studentId === state.currentUser.studentId || s.name === state.currentUser.name);
+            if (currentStudent) {
+                openEditHsModal(currentStudent.id);
+            } else {
+                showToast('담임교사 모드에서는 표에서 직접 학생의 고등학교를 수정할 수 있습니다.', 'info');
+            }
+        }
+
+        function openEditHsModal(studentId) {
+            const student = state.students.find(s => s.id === studentId);
+            if (!student) return;
+
+            document.getElementById('edit-hs-student-id').value = student.id;
+            document.getElementById('edit-hs-student-name').innerText = `학생: ${student.no}번 ${student.name} (${student.studentId})`;
+            document.getElementById('edit-hs-input').value = student.school || '';
+            openModal('edit-hs-modal');
+        }
+
+        function setPresetHsModal(name) {
+            document.getElementById('edit-hs-input').value = name;
+        }
+
+        function saveHighSchoolModal() {
+            const studentId = parseInt(document.getElementById('edit-hs-student-id').value);
+            const val = document.getElementById('edit-hs-input').value.trim();
+            updateStudentHighSchool(studentId, val);
+            closeModal('edit-hs-modal');
+            renderHighSchoolSurvey();
+        }
+
+        function exportToCsv() {
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF번호,학번,이름,다자녀여부,희망고등학교\n";
+            state.students.forEach(s => {
+                csvContent += `${s.no},${s.studentId},${s.name},${s.isMultiChild ? '다자녀(V)' : '미해당'},${s.school || '미정'}\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "2026_307_고등학교_선호도조사.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("선호도 조사 명단 CSV 파일이 다운로드되었습니다.", "success");
+        }
+
+        // ==========================================
+        // 3. 전체 공지사항 (교사만 수정/삭제 버튼 노출)
+        // ==========================================
+        function renderNotices() {
+            const container = document.getElementById('notice-cards-container');
+            container.innerHTML = '';
+
+            const badgeStyles = {
+                '중요': 'bg-rose-100 text-rose-700 border-rose-200',
+                '준비물': 'bg-amber-100 text-amber-700 border-amber-200',
+                '가정통신': 'bg-indigo-100 text-indigo-700 border-indigo-200',
+                '행사': 'bg-emerald-100 text-emerald-700 border-emerald-200'
+            };
+
+            const searchInput = (document.getElementById('notice-search-input')?.value || '').toLowerCase();
+
+            let list = state.notices;
+            if (state.noticeFilterCategory !== '전체') {
+                list = list.filter(n => n.category === state.noticeFilterCategory);
+            }
+            if (searchInput) {
+                list = list.filter(n => n.title.toLowerCase().includes(searchInput) || n.content.toLowerCase().includes(searchInput));
+            }
+
+            document.getElementById('notice-badge').textContent = state.notices.length;
+
+            if (list.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full bg-white p-12 rounded-2xl border border-dashed border-slate-300 text-center text-slate-400 text-xs">
+                        등록된 공지사항이 없습니다.
+                    </div>
+                `;
+                return;
+            }
+
+            const isTeacher = state.currentUser.role === 'teacher';
+
+            list.forEach(n => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs flex flex-col justify-between hover:border-indigo-300 hover:shadow-md transition-all";
+                
+                const actionButtonsHtml = isTeacher ? `
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="openEditNoticeModal(${n.id})" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-lg transition-colors flex items-center gap-1 text-xs">
+                            <span>✏️</span> 수정
+                        </button>
+                        <button onclick="deleteNoticeDirect(${n.id})" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-lg transition-colors flex items-center gap-1 text-xs">
+                            <span>🗑️</span> 삭제
+                        </button>
+                    </div>
+                ` : '';
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-2.5">
+                            <span class="px-2.5 py-0.5 text-xs font-bold rounded-md border ${badgeStyles[n.category] || 'bg-slate-100 text-slate-700'}">
+                                ${n.category}
+                            </span>
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-xs text-slate-400 font-medium">${n.date}</span>
+                            </div>
+                        </div>
+                        <h3 class="text-base font-bold text-slate-800 mb-2 leading-snug">${n.title}</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed whitespace-pre-line">${n.content}</p>
+                    </div>
+
+                    <div class="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                        <div class="flex items-center gap-1 text-[11px] text-slate-400">
+                            <span class="font-medium text-slate-600">작성: ${n.author}</span>
+                        </div>
+                        ${actionButtonsHtml}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterNotices(category) {
+            state.noticeFilterCategory = category;
+            document.querySelectorAll('.notice-filter-btn').forEach(btn => {
+                if (btn.innerText.includes(category)) {
+                    btn.className = "notice-filter-btn active px-3 py-1 text-xs rounded-lg font-bold bg-slate-800 text-white";
+                } else {
+                    btn.className = "notice-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200";
+                }
+            });
+            renderNotices();
+        }
+
+        function openNoticeModal() {
+            if (state.currentUser.role !== 'teacher') {
+                showToast('공지사항 작성은 담임선생님만 가능합니다.', 'error');
+                return;
+            }
+            openModal('notice-modal');
+        }
+
+        function handleCreateNotice(e) {
+            e.preventDefault();
+            const cat = document.getElementById('new-notice-category').value;
+            const title = document.getElementById('new-notice-title').value.trim();
+            const content = document.getElementById('new-notice-content').value.trim();
+
+            const newNotice = {
+                id: Date.now(),
+                category: cat,
+                title: title,
+                content: content,
+                date: new Date().toISOString().split('T')[0],
+                author: '담임선생님',
+                readCount: 1
+            };
+
+            state.notices.unshift(newNotice);
+            renderNotices();
+            closeModal('notice-modal');
+            e.target.reset();
+            showToast('새 공지사항이 등록되었습니다.', 'success');
+        }
+
+        function openEditNoticeModal(noticeId) {
+            if (state.currentUser.role !== 'teacher') {
+                showToast('공지 수정 권한이 없습니다.', 'error');
+                return;
+            }
+
+            const notice = state.notices.find(n => n.id === noticeId);
+            if (!notice) return;
+
+            document.getElementById('edit-notice-id').value = notice.id;
+            document.getElementById('edit-notice-category').value = notice.category;
+            document.getElementById('edit-notice-title').value = notice.title;
+            document.getElementById('edit-notice-content').value = notice.content;
+
+            openModal('edit-notice-modal');
+        }
+
+        function handleUpdateNotice(e) {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('edit-notice-id').value);
+            const notice = state.notices.find(n => n.id === id);
+
+            if (notice) {
+                notice.category = document.getElementById('edit-notice-category').value;
+                notice.title = document.getElementById('edit-notice-title').value.trim();
+                notice.content = document.getElementById('edit-notice-content').value.trim();
+
+                renderNotices();
+                closeModal('edit-notice-modal');
+                showToast(`공지사항 "${notice.title}"이(가) 수정되었습니다.`, 'success');
+            }
+        }
+
+        function deleteNoticeDirect(id) {
+            if (state.currentUser.role !== 'teacher') {
+                showToast('공지 삭제 권한이 없습니다.', 'error');
+                return;
+            }
+
+            const target = state.notices.find(n => n.id === id);
+            const title = target ? target.title : '공지';
+
+            state.notices = state.notices.filter(n => n.id !== id);
+            renderNotices();
+            showToast(`공지사항 "${title}"이(가) 삭제되었습니다.`, 'info');
+        }
+
+        function deleteNoticeFromEditModal() {
+            const id = parseInt(document.getElementById('edit-notice-id').value);
+            closeModal('edit-notice-modal');
+            deleteNoticeDirect(id);
+        }
+
+        // ==========================================
+        // 4. 안내 액자 & 배너 기능
+        // ==========================================
+        let pendingFrameImageData = null;
+
+        function renderTopTabFrameBanner(currentTabId) {
+            const bannerContainer = document.getElementById('top-tab-frame-banner');
+            if (currentTabId === 'frames') {
+                bannerContainer.classList.add('hidden');
+                return;
+            }
+
+            const matchedFrame = state.frames.find(f => f.targetTab === currentTabId);
+            if (!matchedFrame) {
+                bannerContainer.classList.add('hidden');
+                bannerContainer.innerHTML = '';
+                return;
+            }
+
+            bannerContainer.classList.remove('hidden');
+            bannerContainer.innerHTML = `
+                <div class="picture-frame p-4 bg-gradient-to-r from-amber-50/70 via-white to-amber-50/70 border-4 border-amber-100 flex flex-col md:flex-row items-center gap-5">
+                    <div class="w-full md:w-56 h-36 flex-shrink-0 overflow-hidden rounded-xl shadow-md border border-slate-200 cursor-pointer group relative" onclick="window.open('${matchedFrame.imageUrl}', '_blank')">
+                        <img src="${matchedFrame.imageUrl}" alt="${matchedFrame.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                        <span class="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] font-bold px-2 py-0.5 rounded backdrop-blur-xs">
+                            🔍 원본 보기
+                        </span>
+                    </div>
+                    <div class="flex-1 min-w-0 py-1">
+                        <div class="flex items-center gap-2 mb-1.5">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-800 border border-amber-200 flex items-center gap-1">
+                                <span>🖼️</span> 탭 참고 안내 액자
+                            </span>
+                            <span class="text-[11px] text-slate-400 font-medium">${matchedFrame.date}</span>
+                        </div>
+                        <h3 class="text-base font-extrabold text-slate-800 leading-snug mb-1">${matchedFrame.title}</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">${matchedFrame.desc || '학생들이 상시 확인할 수 있도록 게시된 학급 안내 자료입니다.'}</p>
+                    </div>
+                    <div class="flex-shrink-0 self-end md:self-center">
+                        <button onclick="switchTab('frames')" class="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs rounded-xl border border-slate-200 shadow-xs transition-colors">
+                            액자 갤러리로 이동
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderFramesGallery() {
+            const grid = document.getElementById('frames-gallery-grid');
+            grid.innerHTML = '';
+
+            let list = state.frames;
+            if (state.currentFrameFilter !== '전체') {
+                list = list.filter(f => f.targetTab === state.currentFrameFilter);
+            }
+
+            document.getElementById('frame-badge').textContent = `${state.frames.length}개`;
+
+            if (list.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full bg-white p-12 rounded-2xl border border-dashed border-slate-300 text-center text-slate-400 text-xs">
+                        등록된 안내 액자가 없습니다. [+ 새 안내 액자 올리기] 버튼을 눌러 사진을 걸어보세요.
+                    </div>
+                `;
+                return;
+            }
+
+            const tabNameMap = {
+                'volunteer': '💖 봉사시간 탭',
+                'roles': '🤝 1인 1역할 탭',
+                'highschool-survey': '🏫 고교선호도 탭',
+                'calendar': '📅 캘린더 탭',
+                'notices': '📢 전체 공지 탭',
+                'general': '🌟 자유 갤러리'
+            };
+
+            list.forEach(f => {
+                const card = document.createElement('div');
+                card.className = "picture-frame p-3 bg-white flex flex-col justify-between hover:shadow-lg transition-shadow";
+
+                card.innerHTML = `
+                    <div>
+                        <div class="relative h-48 rounded-lg overflow-hidden bg-slate-100 cursor-pointer group mb-3 shadow-inner" onclick="window.open('${f.imageUrl}', '_blank')">
+                            <img src="${f.imageUrl}" alt="${f.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                            <span class="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] font-bold px-2 py-0.5 rounded backdrop-blur-xs">
+                                🔍 크게 보기
+                            </span>
+                        </div>
+                        <div class="px-1">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-50 text-amber-800 border border-amber-200">
+                                    연동: ${tabNameMap[f.targetTab] || f.targetTab}
+                                </span>
+                                <span class="text-[11px] text-slate-400">${f.date}</span>
+                            </div>
+                            <h4 class="font-extrabold text-slate-800 text-sm mb-1 leading-snug">${f.title}</h4>
+                            <p class="text-xs text-slate-600 leading-relaxed">${f.desc || ''}</p>
+                        </div>
+                    </div>
+                    <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs px-1">
+                        <span class="text-[11px] text-slate-400">게시: ${f.uploader}</span>
+                        <div class="flex gap-2">
+                            <button onclick="quickViewTabFrame('${f.targetTab}')" class="text-xs text-indigo-600 font-bold hover:underline">
+                                해당 탭 보기
+                            </button>
+                            <button onclick="deleteFrame(${f.id})" class="text-slate-400 hover:text-rose-600 font-bold text-sm" title="액자 내리기">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterFrames(category) {
+            state.currentFrameFilter = category;
+            document.querySelectorAll('.frame-filter-btn').forEach(btn => {
+                if (btn.innerText.includes(category) || (category === '전체' && btn.innerText.includes('전체'))) {
+                    btn.className = "frame-filter-btn active px-3 py-1 text-xs rounded-lg font-bold bg-slate-800 text-white";
+                } else {
+                    btn.className = "frame-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200";
+                }
+            });
+            renderFramesGallery();
+        }
+
+        function openAddFrameModal() {
+            pendingFrameImageData = null;
+            document.getElementById('new-frame-file').value = '';
+            document.getElementById('frame-file-info').innerText = '선택된 사진 파일이 없습니다';
+            document.getElementById('frame-preview-box').classList.add('hidden');
+            openModal('add-frame-modal');
+        }
+
+        function handleFrameFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    pendingFrameImageData = event.target.result;
+                    document.getElementById('frame-file-info').innerText = `선택됨: ${file.name} (${(file.size / 1024 / 1024).toFixed(1)} MB)`;
+                    document.getElementById('frame-preview-img').src = event.target.result;
+                    document.getElementById('frame-preview-box').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function handleCreateFrame(e) {
+            e.preventDefault();
+            const targetTab = document.getElementById('new-frame-target-tab').value;
+            const title = document.getElementById('new-frame-title').value.trim();
+            const desc = document.getElementById('new-frame-desc').value.trim();
+
+            if (!pendingFrameImageData) {
+                showToast('액자에 걸 사진 파일을 선택해 주세요.', 'error');
+                return;
+            }
+
+            const newFrame = {
+                id: Date.now(),
+                targetTab: targetTab,
+                title: title,
+                desc: desc,
+                imageUrl: pendingFrameImageData,
+                uploader: state.currentUser.name || '담임선생님',
+                date: new Date().toISOString().split('T')[0]
+            };
+
+            state.frames.unshift(newFrame);
+            renderFramesGallery();
+            renderTopTabFrameBanner(state.activeTab);
+            closeModal('add-frame-modal');
+            e.target.reset();
+            showToast('새 안내 액자가 성공적으로 게시되었습니다.', 'success');
+        }
+
+        function deleteFrame(frameId) {
+            state.frames = state.frames.filter(f => f.id !== frameId);
+            renderFramesGallery();
+            renderTopTabFrameBanner(state.activeTab);
+            showToast('액자가 삭제되었습니다.', 'info');
+        }
+
+        function quickViewTabFrame(tabId) {
+            if (tabId && tabId !== 'general') {
+                switchTab(tabId);
+            } else {
+                showToast('일반 갤러리 액자입니다.', 'info');
+            }
+        }
+
+        // ==========================================
+        // 5. 학생 카드 & 개인 소통칸
+        // ==========================================
+        function renderStudents(filterText = '') {
+            const grid = document.getElementById('students-grid');
+            grid.innerHTML = '';
+
+            const filtered = state.students.filter(s => {
+                const q = filterText.toLowerCase();
+                return s.name.toLowerCase().includes(q) || 
+                       s.studentId.toLowerCase().includes(q) ||
+                       String(s.no) === q ||
+                       (s.school && s.school.toLowerCase().includes(q));
+            });
+
+            document.getElementById('student-count-badge').textContent = `${state.students.length}명`;
+
+            filtered.forEach(s => {
+                const isCurrent = state.currentUser.name === s.name || state.currentUser.studentId === s.studentId;
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-2xl border ${isCurrent ? 'ring-2 ring-indigo-500 border-indigo-400' : 'border-slate-200/90'} shadow-xs overflow-hidden flex flex-col justify-between`;
+
+                let messagesHtml = '';
+                if (s.messages.length === 0) {
+                    messagesHtml = `<div class="text-center py-5 text-xs text-slate-400">아직 등록된 개인 연락 및 활동 사진이 없습니다.<br>아래에서 첫 소통 메시지나 사진을 등록해 보세요.</div>`;
+                } else {
+                    messagesHtml = s.messages.map(m => `
+                        <div class="p-2.5 rounded-xl text-xs ${m.sender === 'teacher' ? 'bg-indigo-50/90 border border-indigo-100 text-indigo-950' : 'bg-slate-50 border border-slate-200 text-slate-800'}">
+                            <div class="flex justify-between items-center text-[10px] mb-1">
+                                <span class="font-bold ${m.sender === 'teacher' ? 'text-indigo-600' : 'text-slate-600'}">
+                                    ${m.sender === 'teacher' ? '👨‍🏫 선생님 연락' : '🧑‍🎓 ' + s.name + ' 기록'}
+                                </span>
+                                <span class="text-slate-400">${m.time}</span>
+                            </div>
+                            <p class="leading-relaxed">${m.text}</p>
+                            ${m.photo ? `
+                                <div class="mt-2">
+                                    <img src="${m.photo}" alt="첨부 사진" class="rounded-lg max-h-48 w-auto object-cover border border-slate-200 cursor-pointer hover:opacity-90" onclick="window.open('${m.photo}','_blank')">
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('');
+                }
+
+                card.innerHTML = `
+                    <div class="p-5 border-b border-slate-100 ${isCurrent ? 'bg-indigo-50/30' : ''}">
+                        <div class="flex items-start justify-between gap-4">
+                            <div class="flex items-center gap-3.5">
+                                <div class="relative group">
+                                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 text-white flex items-center justify-center font-extrabold text-lg shadow-xs overflow-hidden">
+                                        ${s.avatar ? `<img src="${s.avatar}" onerror="this.onerror=null; this.parentElement.innerHTML='${s.no}';">` : s.no}
+                                    </div>
+                                    <label class="absolute inset-0 bg-black/40 text-white rounded-2xl opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity text-[10px] font-bold">
+                                        사진변경
+                                        <input type="file" accept="image/*" class="hidden" onchange="handleStudentAvatarUpload(event, ${s.id})">
+                                    </label>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-extrabold px-2 py-0.5 rounded bg-indigo-100 text-indigo-800">${s.studentId} (${s.no}번)</span>
+                                        <h3 class="text-base font-extrabold text-slate-800">${s.name}</h3>
+                                        ${isCurrent ? '<span class="text-[10px] bg-indigo-600 text-white px-1.5 py-0.5 rounded font-bold">내 프로필</span>' : ''}
+                                    </div>
+                                    <div class="mt-1 flex items-center gap-1.5">
+                                        <span class="text-[11px] px-2 py-0.5 rounded-md font-extrabold bg-rose-50 text-rose-700 border border-rose-200">
+                                            🏫 지망: ${s.school || '미정'}
+                                        </span>
+                                        <span class="text-[11px] px-2 py-0.5 rounded-md font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                            💖 봉사: ${s.volHours}h
+                                        </span>
+                                        ${s.isMultiChild ? '<span class="text-[10px] px-1.5 py-0.5 rounded-md font-bold bg-amber-50 text-amber-700 border border-amber-200">다자녀(V)</span>' : ''}
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="openAddTagModal(${s.id}, '${s.name}')" class="text-xs text-indigo-600 hover:text-indigo-700 font-bold px-2 py-1 bg-indigo-50 rounded-lg border border-indigo-100">
+                                + 태그
+                            </button>
+                        </div>
+                        <p class="mt-3 text-xs text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                            <span class="font-bold text-slate-800">특징 메모:</span> ${s.traitsDesc || '<span class="text-slate-400">관찰 메모가 아직 비어있습니다. [특징 누적부] 탭에서 입력하세요.</span>'}
+                        </p>
+                    </div>
+
+                    <div class="p-5 flex-1 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                                    <span>💬</span> 개인 소통 및 사진 기록
+                                </h4>
+                                <span class="text-[11px] text-slate-400">${s.messages.length}건 누적</span>
+                            </div>
+                            <div class="space-y-2.5 max-h-48 overflow-y-auto custom-scroll pr-1 mb-3">
+                                ${messagesHtml}
+                            </div>
+                        </div>
+
+                        <div class="pt-3 border-t border-slate-100">
+                            <div class="flex gap-2 items-center">
+                                <div class="relative flex-1">
+                                    <input type="text" id="input-msg-${s.id}" placeholder="${state.currentUser.role === 'teacher' ? '선생님 피드백 입력...' : '선생님께 남길 글이나 활동 내용...'}" class="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                </div>
+                                <label title="사진 첨부" class="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl cursor-pointer transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                    <input type="file" id="input-file-${s.id}" accept="image/*" class="hidden" onchange="previewFileSelected(${s.id})">
+                                </label>
+                                <button onclick="sendStudentMessage(${s.id})" class="px-3.5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-colors">
+                                    등록
+                                </button>
+                            </div>
+                            <div id="file-indicator-${s.id}" class="text-[11px] text-indigo-600 font-semibold mt-1 hidden flex items-center justify-between">
+                                <span>📷 선택된 사진 등록 준비 완료</span>
+                                <button onclick="clearSelectedFile(${s.id})" class="text-rose-500">취소</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterStudents() {
+            const query = document.getElementById('student-search-input').value;
+            renderStudents(query);
+        }
+
+        const pendingFiles = {};
+        function previewFileSelected(studentId) {
+            const fileInput = document.getElementById(`input-file-${studentId}`);
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    pendingFiles[studentId] = e.target.result;
+                    document.getElementById(`file-indicator-${studentId}`).classList.remove('hidden');
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+        }
+
+        function clearSelectedFile(studentId) {
+            delete pendingFiles[studentId];
+            document.getElementById(`input-file-${studentId}`).value = '';
+            document.getElementById(`file-indicator-${studentId}`).classList.add('hidden');
+        }
+
+        function sendStudentMessage(studentId) {
+            const input = document.getElementById(`input-msg-${studentId}`);
+            const text = input.value.trim();
+            const photo = pendingFiles[studentId] || null;
+
+            if (!text && !photo) {
+                showToast('메시지 내용 또는 사진을 첨부해 주세요.', 'error');
+                return;
+            }
+
+            const student = state.students.find(s => s.id === studentId);
+            if (!student) return;
+
+            const now = new Date();
+            const timeStr = `${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+            student.messages.push({
+                id: Date.now(),
+                sender: state.currentUser.role === 'teacher' ? 'teacher' : 'student',
+                text: text || '(사진 등록)',
+                time: timeStr,
+                photo: photo
+            });
+
+            clearSelectedFile(studentId);
+            input.value = '';
+            renderStudents();
+            showToast(`${student.name} 학생 칸에 기록되었습니다.`, 'success');
+        }
+
+        function handleStudentAvatarUpload(e, studentId) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const student = state.students.find(s => s.id === studentId);
+                    if (student) {
+                        student.avatar = event.target.result;
+                        renderStudents();
+                        renderTraitsTable();
+                        showToast(`${student.name} 학생의 프로필 사진이 업데이트되었습니다.`, 'success');
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function openNewStudentModal() {
+            document.getElementById('new-student-num').value = `307${String(state.students.length + 1).padStart(2, '0')}`;
+            openModal('student-modal');
+        }
+
+        function handleCreateStudent(e) {
+            e.preventDefault();
+            const num = document.getElementById('new-student-num').value.trim();
+            const name = document.getElementById('new-student-name').value.trim();
+            const school = document.getElementById('new-student-target-school').value.trim();
+            const volHours = parseInt(document.getElementById('new-student-vol-hours').value) || 0;
+            const isMulti = document.getElementById('new-student-is-multichild').checked;
+            const rawTags = document.getElementById('new-student-tags').value;
+            const traits = document.getElementById('new-student-traits').value.trim();
+
+            const tags = rawTags ? rawTags.split(',').map(t => t.trim()).filter(Boolean) : [];
+            if (isMulti && !tags.includes('다자녀')) tags.push('다자녀');
+
+            const newStudent = {
+                id: Date.now(),
+                studentId: num,
+                no: state.students.length + 1,
+                name: name,
+                school: school || '미정',
+                isMultiChild: isMulti,
+                volHours: volHours,
+                avatar: '',
+                tags: tags,
+                traitsDesc: traits || '',
+                messages: []
+            };
+
+            state.students.push(newStudent);
+            renderAll();
+            closeModal('student-modal');
+            e.target.reset();
+            showToast(`${name} 학생이 등록되었습니다.`, 'success');
+        }
+
+        // ==========================================
+        // 6. 고등학교 자료실
+        // ==========================================
+        let currentHsFilter = '전체';
+        let pendingMaterialFile = null;
+
+        function renderHighschoolMaterials() {
+            const container = document.getElementById('highschool-materials-grid');
+            container.innerHTML = '';
+
+            let filtered = state.highSchoolMaterials;
+            if (currentHsFilter !== '전체') {
+                filtered = state.highSchoolMaterials.filter(m => m.category === currentHsFilter);
+            }
+
+            document.getElementById('highschool-badge').textContent = `${state.highSchoolMaterials.length}건`;
+
+            filtered.forEach(m => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden flex flex-col justify-between hover:shadow-md hover:border-indigo-200 transition-all";
+
+                const isImage = m.fileType === 'image';
+
+                card.innerHTML = `
+                    <div>
+                        ${isImage ? `
+                            <div class="relative h-44 bg-slate-100 overflow-hidden cursor-pointer group" onclick="window.open('${m.fileUrl}', '_blank')">
+                                <img src="${m.fileUrl}" alt="${m.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                <span class="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] font-bold px-2 py-0.5 rounded backdrop-blur-xs">
+                                    🔍 크게 보기
+                                </span>
+                            </div>
+                        ` : `
+                            <div class="p-5 bg-gradient-to-r from-slate-50 to-indigo-50/40 border-b border-slate-100 flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-black text-xs shadow-xs">
+                                    ${m.fileName.split('.').pop().toUpperCase()}
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs font-bold text-slate-800 truncate">${m.fileName}</p>
+                                    <p class="text-[11px] text-slate-400">${m.fileSize || '문서 파일'}</p>
+                                </div>
+                            </div>
+                        `}
+
+                        <div class="p-5 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                    ${m.category}
+                                </span>
+                                <span class="text-[11px] text-slate-400">${m.date}</span>
+                            </div>
+                            <h3 class="font-extrabold text-slate-800 text-base leading-snug">${m.title}</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">${m.desc}</p>
+                        </div>
+                    </div>
+
+                    <div class="p-5 pt-0">
+                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                            <span class="text-[11px] text-slate-400">등록: <strong class="text-slate-600">${m.uploader}</strong></span>
+                            <div class="flex items-center gap-2">
+                                <button onclick="downloadOrOpenFile('${m.fileName}', '${m.fileUrl}')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1 transition-colors">
+                                    <span>💾</span> 열기/다운로드
+                                </button>
+                                <button onclick="deleteMaterial(${m.id})" class="text-slate-300 hover:text-rose-500 font-bold text-sm">×</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterHighschool(cat) {
+            currentHsFilter = cat;
+            document.querySelectorAll('.hs-filter-btn').forEach(btn => {
+                if (btn.innerText.includes(cat) || (cat === '전체' && btn.innerText.includes('전체'))) {
+                    btn.className = "hs-filter-btn active px-3 py-1.5 text-xs rounded-lg font-bold bg-indigo-600 text-white";
+                } else {
+                    btn.className = "hs-filter-btn px-3 py-1.5 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200";
+                }
+            });
+            renderHighschoolMaterials();
+        }
+
+        function openAddMaterialModal() {
+            pendingMaterialFile = null;
+            document.getElementById('mat-file-preview-info').innerText = '선택된 파일이 없습니다';
+            document.getElementById('new-mat-file').value = '';
+            openModal('material-modal');
+        }
+
+        function handleMaterialFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                const isImage = file.type.startsWith('image/');
+                const sizeStr = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
+
+                reader.onload = function(event) {
+                    pendingMaterialFile = {
+                        name: file.name,
+                        type: isImage ? 'image' : 'doc',
+                        dataUrl: event.target.result,
+                        size: sizeStr
+                    };
+                    document.getElementById('mat-file-preview-info').innerText = `선택됨: ${file.name} (${sizeStr}) - ${isImage ? '🖼️ 사진' : '📄 문서'}`;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function handleCreateMaterial(e) {
+            e.preventDefault();
+            const category = document.getElementById('new-mat-category').value;
+            const title = document.getElementById('new-mat-title').value.trim();
+            const desc = document.getElementById('new-mat-desc').value.trim();
+
+            const fileData = pendingMaterialFile || {
+                name: '자료_첨부문서.pdf',
+                type: 'doc',
+                dataUrl: '#',
+                size: '1.5 MB'
+            };
+
+            const newMat = {
+                id: Date.now(),
+                category: category,
+                title: title,
+                desc: desc || '고입 준비를 위한 학급 안내 자료입니다.',
+                date: new Date().toISOString().split('T')[0],
+                uploader: state.currentUser.name || '담임선생님',
+                fileType: fileData.type,
+                fileName: fileData.name,
+                fileUrl: fileData.dataUrl,
+                fileSize: fileData.size
+            };
+
+            state.highSchoolMaterials.unshift(newMat);
+            renderHighschoolMaterials();
+            closeModal('material-modal');
+            e.target.reset();
+            showToast('고등학교 자료가 안전하게 업로드되었습니다.', 'success');
+        }
+
+        function downloadOrOpenFile(name, url) {
+            if (url && url !== '#') {
+                const win = window.open(url, '_blank');
+                if (!win) {
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = name;
+                    a.click();
+                }
+            } else {
+                showToast(`'${name}' 파일을 가상 열람했습니다.`, 'info');
+            }
+        }
+
+        function deleteMaterial(id) {
+            state.highSchoolMaterials = state.highSchoolMaterials.filter(m => m.id !== id);
+            renderHighschoolMaterials();
+            showToast('자료가 삭제되었습니다.', 'info');
+        }
+
+        // ==========================================
+        // 7. 1인 1역할 분담
+        // ==========================================
+        function renderRoles() {
+            const container = document.getElementById('roles-grid');
+            container.innerHTML = '';
+
+            document.getElementById('roles-badge').textContent = `${state.roles.length}개`;
+
+            if (state.roles.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full bg-white p-12 rounded-2xl border border-dashed border-slate-300 text-center text-slate-400 text-xs">
+                        <span class="text-2xl block mb-2">🤝</span>
+                        배정된 1인 1역할이 아직 없습니다.<br>
+                        우측 상단의 <strong>[+ 신규 역할 추가]</strong> 버튼을 눌러 학급 역할을 새롭게 배정해 주세요.
+                    </div>
+                `;
+                return;
+            }
+
+            state.roles.forEach(r => {
+                const isMine = state.currentUser.name === r.studentName || state.currentUser.studentId === r.studentId;
+                const card = document.createElement('div');
+                card.className = `p-5 rounded-2xl border ${isMine ? 'bg-emerald-50/50 border-emerald-300 ring-2 ring-emerald-500/50' : 'bg-white border-slate-200/80'} shadow-xs flex flex-col justify-between`;
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-2.5">
+                            <span class="px-2 py-0.5 text-[11px] font-bold rounded-lg bg-slate-100 text-slate-700">
+                                🔄 ${r.cycle}
+                            </span>
+                            <span class="px-2 py-0.5 text-[11px] font-bold rounded-full bg-emerald-100 text-emerald-800">
+                                ${r.status}
+                            </span>
+                        </div>
+                        <h4 class="font-extrabold text-slate-800 text-base mb-1.5">${r.title}</h4>
+                        <p class="text-xs text-slate-600 leading-relaxed mb-4">${r.desc}</p>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-slate-500">담당:</span>
+                            <span class="text-xs font-extrabold text-indigo-700 bg-indigo-50 px-2 py-1 rounded-lg">
+                                ${r.studentId} ${r.studentName}
+                            </span>
+                            ${isMine ? '<span class="text-[10px] font-bold text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded">내 역할</span>' : ''}
+                        </div>
+                        <button onclick="deleteRole(${r.id})" class="text-slate-300 hover:text-rose-500 font-bold text-sm">×</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function openAddRoleModal() {
+            const select = document.getElementById('new-role-student');
+            select.innerHTML = state.students.map(s => `<option value="${s.studentId}|${s.name}">${s.no}번 ${s.studentId} ${s.name}</option>`).join('');
+            openModal('role-modal');
+        }
+
+        function handleCreateRole(e) {
+            e.preventDefault();
+            const title = document.getElementById('new-role-title').value.trim();
+            const [studentId, studentName] = document.getElementById('new-role-student').value.split('|');
+            const desc = document.getElementById('new-role-desc').value.trim();
+
+            state.roles.push({
+                id: Date.now(),
+                title,
+                studentId,
+                studentName,
+                desc,
+                cycle: '상시/수시',
+                status: '활동중'
+            });
+
+            renderRoles();
+            closeModal('role-modal');
+            e.target.reset();
+            showToast('새 학급 역할이 배정되었습니다.', 'success');
+        }
+
+        function deleteRole(id) {
+            state.roles = state.roles.filter(r => r.id !== id);
+            renderRoles();
+            showToast('역할이 삭제되었습니다.', 'info');
+        }
+
+        // ==========================================
+        // 8. 특징 누적 매트릭스
+        // ==========================================
+        let currentTraitFilter = '전체';
+        function renderTraitsTable() {
+            const tbody = document.getElementById('traits-table-body');
+            tbody.innerHTML = '';
+
+            let filtered = state.students;
+            if (currentTraitFilter !== '전체') {
+                filtered = state.students.filter(s => s.tags.some(t => t.includes(currentTraitFilter)));
+            }
+
+            filtered.forEach(s => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/80 transition-colors";
+
+                const tagChips = s.tags.length > 0 
+                    ? s.tags.map(t => `
+                        <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-700 text-xs px-2.5 py-1 rounded-lg border border-slate-200">
+                            #${t}
+                            <button onclick="removeTag(${s.id}, '${t}')" class="text-slate-400 hover:text-rose-500 font-bold ml-0.5">×</button>
+                        </span>
+                    `).join(' ')
+                    : `<span class="text-slate-400 text-xs">-</span>`;
+
+                tr.innerHTML = `
+                    <td class="px-4 py-3.5 text-center font-bold text-slate-500">${s.no}</td>
+                    <td class="px-4 py-3.5 font-bold text-slate-800">
+                        <div class="flex items-center gap-2">
+                            <div class="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-extrabold text-xs">
+                                ${s.no}
+                            </div>
+                            <div>
+                                <span class="text-xs text-indigo-600 block leading-tight font-mono">${s.studentId}</span>
+                                <span>${s.name}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3.5 text-center font-bold">
+                        ${s.isMultiChild ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-100 text-rose-700 border border-rose-200">다자녀 (V)</span>' : '<span class="text-slate-300">-</span>'}
+                    </td>
+                    <td class="px-4 py-3.5 font-bold">
+                        <span class="px-2.5 py-1 rounded-md text-xs bg-rose-50 text-rose-700 border border-rose-200">
+                            ${s.school || '미정'}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3.5 text-center font-extrabold text-indigo-600">
+                        ${s.volHours}시간
+                    </td>
+                    <td class="px-4 py-3.5">
+                        <div class="flex flex-wrap gap-1.5 items-center">
+                            ${tagChips}
+                        </div>
+                    </td>
+                    <td class="px-4 py-3.5">
+                        <input type="text" value="${s.traitsDesc || ''}" onblur="updateTraitDesc(${s.id}, this.value)" placeholder="특이사항, 배려사항 메모 입력..." class="w-full text-xs p-1.5 bg-transparent hover:bg-white focus:bg-white border border-transparent hover:border-slate-300 focus:border-indigo-500 rounded-md focus:outline-none transition-all">
+                    </td>
+                    <td class="px-4 py-3.5 text-center">
+                        <button onclick="openAddTagModal(${s.id}, '${s.name}')" class="text-xs px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 font-semibold hover:bg-indigo-100 transition-colors">
+                            + 태그
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterTraitsByTag(tagName) {
+            currentTraitFilter = tagName;
+            document.querySelectorAll('.trait-filter-tag').forEach(btn => {
+                if (btn.innerText.includes(tagName) || (tagName === '전체' && btn.innerText.includes('전체'))) {
+                    btn.className = "trait-filter-tag active px-2.5 py-1 text-xs rounded-lg font-medium bg-slate-800 text-white";
+                } else {
+                    btn.className = "trait-filter-tag px-2.5 py-1 text-xs rounded-lg font-medium bg-slate-100 text-slate-600 hover:bg-slate-200";
+                }
+            });
+            renderTraitsTable();
+        }
+
+        function updateTraitDesc(studentId, newDesc) {
+            const student = state.students.find(s => s.id === studentId);
+            if (student) {
+                student.traitsDesc = newDesc;
+                showToast(`${student.name} 학생의 관찰 메모가 저장되었습니다.`, 'info');
+            }
+        }
+
+        function openAddTagModal(studentId, studentName) {
+            document.getElementById('tag-target-student-id').value = studentId;
+            document.getElementById('target-student-label').innerText = `대상 학생: ${studentName}`;
+            document.getElementById('new-tag-input').value = '';
+            openModal('add-tag-modal');
+        }
+
+        function confirmAddTag() {
+            const studentId = parseInt(document.getElementById('tag-target-student-id').value);
+            const tagVal = document.getElementById('new-tag-input').value.trim();
+            if (!tagVal) return;
+
+            const student = state.students.find(s => s.id === studentId);
+            if (student && !student.tags.includes(tagVal)) {
+                student.tags.push(tagVal);
+                renderTraitsTable();
+                renderStudents();
+                showToast(`'#${tagVal}' 태그가 추가되었습니다.`, 'success');
+            }
+            closeModal('add-tag-modal');
+        }
+
+        function removeTag(studentId, tagToRemove) {
+            const student = state.students.find(s => s.id === studentId);
+            if (student) {
+                student.tags = student.tags.filter(t => t !== tagToRemove);
+                renderTraitsTable();
+                renderStudents();
+                showToast(`'#${tagToRemove}' 태그가 삭제되었습니다.`, 'info');
+            }
+        }
+
+        // ==========================================
+        // 9. 캘린더 로직
+        // ==========================================
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-days-grid');
+            grid.innerHTML = '';
+            const totalDays = 31;
+
+            for (let day = 1; day <= totalDays; day++) {
+                const dayStr = `2026-03-${String(day).padStart(2, '0')}`;
+                const isSunday = (day - 1) % 7 === 0;
+                const isSaturday = (day - 1) % 7 === 6;
+
+                const daySchedules = state.schedules.filter(s => s.date === dayStr);
+
+                const cell = document.createElement('div');
+                cell.className = `min-h-[85px] p-2 bg-white flex flex-col justify-between ${
+                    day === 4 ? 'ring-2 ring-indigo-500 z-10' : ''
+                }`;
+
+                let scheduleBadges = daySchedules.map(sch => {
+                    let color = 'bg-indigo-100 text-indigo-800 border-indigo-200';
+                    if (sch.type === '학생상담') color = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+                    if (sch.type === '학급행사') color = 'bg-amber-100 text-amber-800 border-amber-200';
+
+                    return `
+                        <div class="p-1 rounded text-[10px] font-semibold border ${color} truncate mb-1" title="${sch.student}: ${sch.memo}">
+                            ${sch.time ? sch.time + ' ' : ''}${sch.student.split(' ')[0]}
+                        </div>
+                    `;
+                }).join('');
+
+                cell.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold ${isSunday ? 'text-rose-500' : isSaturday ? 'text-indigo-600' : 'text-slate-700'}">
+                            ${day}
+                        </span>
+                        ${day === 4 ? '<span class="text-[9px] px-1 bg-indigo-600 text-white rounded font-bold">오늘</span>' : ''}
+                    </div>
+                    <div class="flex-1 mt-1 overflow-y-auto custom-scroll">
+                        ${scheduleBadges}
+                    </div>
+                `;
+                grid.appendChild(cell);
+            }
+
+            renderUpcomingScheduleList();
+        }
+
+        function renderUpcomingScheduleList() {
+            const container = document.getElementById('upcoming-schedules');
+            container.innerHTML = '';
+
+            const sorted = [...state.schedules].sort((a,b) => a.date.localeCompare(b.date));
+
+            sorted.forEach(sch => {
+                const item = document.createElement('div');
+                item.className = "p-3 rounded-xl border border-slate-200/80 bg-slate-50/70 flex justify-between items-start";
+                item.innerHTML = `
+                    <div>
+                        <div class="flex items-center gap-1.5 mb-1">
+                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                                sch.type === '학생상담' ? 'bg-emerald-100 text-emerald-800' :
+                                sch.type === '학급행사' ? 'bg-amber-100 text-amber-800' : 'bg-indigo-100 text-indigo-800'
+                            }">${sch.type}</span>
+                            <span class="font-bold text-xs text-slate-800">${sch.student}</span>
+                        </div>
+                        <p class="text-xs text-slate-500">${sch.date} (${sch.time || '시간미정'})</p>
+                        <p class="text-xs text-slate-600 mt-1 font-medium">${sch.memo || '메모 없음'}</p>
+                    </div>
+                    <button onclick="deleteSchedule(${sch.id})" class="text-slate-400 hover:text-rose-500 text-sm font-bold ml-2">×</button>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function handleAddSchedule(e) {
+            e.preventDefault();
+            const student = document.getElementById('sched-student').value;
+            const type = document.getElementById('sched-type').value;
+            const date = document.getElementById('sched-date').value;
+            const memo = document.getElementById('sched-memo').value.trim();
+
+            state.schedules.push({
+                id: Date.now(),
+                date,
+                time: '15:00',
+                student,
+                type,
+                memo: memo || '신학기 상담'
+            });
+
+            renderCalendar();
+            document.getElementById('sched-memo').value = '';
+            showToast('상담 일정이 등록되었습니다.', 'success');
+        }
+
+        function deleteSchedule(id) {
+            state.schedules = state.schedules.filter(s => s.id !== id);
+            renderCalendar();
+            showToast('일정이 삭제되었습니다.', 'info');
+        }
+
+        function updateScheduleSelectOptions() {
+            const select = document.getElementById('sched-student');
+            if (!select) return;
+            select.innerHTML = '';
+            state.students.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = `${s.name} (${s.studentId})`;
+                opt.textContent = `${s.no}번 ${s.studentId} ${s.name} [${s.school || '미정'}]`;
+                select.appendChild(opt);
+            });
+            const optAll = document.createElement('option');
+            optAll.value = '학급 전체 (29명)';
+            optAll.textContent = '학급 전체 (29명) / 기타';
+            select.appendChild(optAll);
+        }
+
+        function populateLoginDropdown() {
+            const select = document.querySelector('#login-overlay select');
+            if (!select) return;
+            select.innerHTML = '<option value="">▼ 29명 전체 학생 명단에서 선택하여 바로 로그인...</option>';
+            state.students.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = `${s.studentId}|${s.name}`;
+                opt.textContent = `${s.no}번 ${s.studentId} ${s.name} (봉사: ${s.volHours}h, 희망: ${s.school || '미정'})`;
+                select.appendChild(opt);
+            });
+        }
+
+        function renderAll() {
+            renderVolunteerTab();
+            renderNotices();
+            renderFramesGallery();
+            renderTopTabFrameBanner(state.activeTab);
+            renderHighSchoolSurvey();
+            renderStudents();
+            renderHighschoolMaterials();
+            renderRoles();
+            renderTraitsTable();
+            renderCalendar();
+            updateScheduleSelectOptions();
+            populateLoginDropdown();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderAll();
+        });
+    </script>
+</body>
+</html>
